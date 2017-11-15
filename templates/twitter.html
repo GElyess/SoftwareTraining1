@@ -192,34 +192,10 @@ float: right;
      var location = '/post/unlike?post_id=' + id;
     window.location.href = location;
   }
-
-/*$(document).ready(function() {
-  $('#editContent').dialog({
-    autoOpen: false,
-    height:400,
-    width: 500,
-    modal: true
-});
-
-  $('#editSomething').click(function(){
-    $('#editContent').dialog('open');
-    //If I put an alert() here, the alert shows
-  });*/
-
-/*$("#submitSomething").click(function () {
-    event.preventDefault();
-
-  $("#main-container").append('<div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px"><div id="sub"><p>Author</p><button value="edit" class="button2" id="editSomething" name="editSomething"> edit </button>      <button value="delete" class="button2" id="deleteSomething" name="deleteSomething"> delete </button>    </div>    <div id="contents">      <textarea rows="10" placeholder="'+ document.getElementById("text-Content").value +'" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>    </div>    <div id="button-group">      <form>      <input type="text" id="number1" value="0" disabled /><input type="button" class="mini-button" id="likes" onclick=" incrementValue1();this.disabled=true;       document.getElementById("dislikes").disabled = true; this.value="Liked!"; " value="Like"/>      <input type="text" id="number2" value="0" disabled /> <input type="button" class="mini-button" id="dislikes" onclick= "incrementValue2();this.disabled=true;        document.getElementById("likes").disabled = true; this.value="Disliked!"; " value="Dislike" />      </form>    </div>  </div><br><br>');
-});
-*/
-/*});*/
-
-
 </script>
 
 <div id="top">
   <form  action="/post/post" method="post" id="post_blog">
-    <!--<input id="content" type="text" name="content" rows="10" value="" placeholder="Write your comment in here">-->
     <textarea id="content" form="post_blog" name="content" rows="10" value="" placeholder="Write your post in here"></textarea>
     <input value="Submit" class="button" id="submitSomething" name="submitSomething" type="submit">
   </form>
@@ -272,18 +248,13 @@ float: right;
   </div>
 </div>
 
-
+<br>
 {% endfor %}
 {% endif %}
+<hr>
 
-<!--<div id="editContent">
-  <div id="popup">
-    <form  action="/post/update" method="post" id="edit_post">
-      <textarea id="content" form="edit_post" name="content" rows="10" value="" placeholder="Write your comment in here"></textarea>
-      <input value="Change" class="button" id="submitSomething" name="submitSomething" type="submit">
-      <input type="hidden" name="zero">
-    </form>
-  </div>
-</div>-->
+<p>Click <a  href="/logout">here </a> to logout.               </p> <br>
+<p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
+
 </body>
 </html>

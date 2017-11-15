@@ -189,12 +189,6 @@ function like_comment(post_id, comment_id){
   }
 
 </script>
-
-<!-- must get the comment_id 
-here we have post_id and comments
-
-<p>cpst_id:{{post_id}}</p>-->
-
 <div id="top">
   <form  action="/comment/post" method="post" id="comment_post">
     <textarea id="comment_content" form="comment_post" name="comment_content" rows="10" value="" placeholder="Write your comment in here"></textarea>
@@ -249,18 +243,15 @@ here we have post_id and comments
   </div>
 </div>
 
-
+<br>
 {% endfor %}
 {% endif %}
 
-<!--<div id="editContent">
-  <div id="popup">
-    <form  action="/post/update" method="post" id="edit_post">
-      <textarea id="content" form="edit_post" name="content" rows="10" value="" placeholder="Write your comment in here"></textarea>
-      <input value="Change" class="button" id="submitSomething" name="submitSomething" type="submit">
-      <input type="hidden" name="zero">
-    </form>
-  </div>
-</div>-->
+<hr>
+<p>Click <a href="/logout">here</a> to logout.</p> <br>
+<p>Click <a href="/blog">here</a> to blog.</p> <br>
+<p>Click <a href="/dashboard">here</a> to dashboard.</p>
+
+
 </body>
 </html>

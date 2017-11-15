@@ -179,7 +179,7 @@ def update_profile():
 		#return render_template('index.html')
 		return redirect(url_for('dashboard'))
 	return redirect(url_for('login'))
-
+ 
 # start the server with the 'run()' method
 if __name__ == '__main__':
 	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
