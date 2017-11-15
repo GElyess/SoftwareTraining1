@@ -1,0 +1,86 @@
+<!DOCTYPE html5>
+<html>
+<style>
+/* Full-width input fields */
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+    padding: 14px 20px;
+    background-color: #f44336;
+}
+
+/* Float cancel and signup buttons and add an equal width */
+.cancelbtn,.signupbtn {
+    float: left;
+    width: 49%;
+}
+
+/* Add padding to container elements */
+.container {
+    padding: 16px;
+}
+
+/* Clear floats */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Change styles for cancel button and signup button on extra small screens */
+@media screen and (max-width: 300px) {
+    .cancelbtn, .signupbtn {
+       width: 100%;
+    }
+}
+</style>
+<body>
+
+<h2>Signup Form</h2>
+
+<form action="/register" style="border:1px solid #ccc" method="post">
+  <div class="container">
+    <label><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="username" required>
+
+    <label><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" required>
+
+    <label><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="password" required  minlength="8" <!--pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$"-->>
+
+    <label><b>Repeat Password</b></label>
+    <input type="password" placeholder="Repeat Password" name="psw-repeat" required  minlength="8" <!--pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$"-->>
+    <input type="checkbox" checked="checked"> Remember me
+    <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+
+    <div class="clearfix">
+      <button type="button" class="cancelbtn" value="cancel" onclick="location.href='/login';" style="box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset; background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250); border-radius: 6px; border: 1px solid rgb(132, 187, 243); display: inline-block; cursor: pointer; color: rgb(255, 255, 255); font-family: Arial; font-size: 15px; font-weight: bold; padding: 6px 24px; text-decoration: none; text-shadow: rgb(82, 142, 204) 0px 1px 0px;">Cancel</button>
+      <button type="submit" class="signupbtn" value="valid" style="float:right; margin-left: 10px; box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset; background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250); border-radius: 6px; border: 1px solid rgb(132, 187, 243); display: inline-block; cursor: pointer; color: rgb(255, 255, 255); font-family: Arial; font-size: 15px; font-weight: bold; padding: 6px 24px; text-decoration: none; text-shadow: rgb(82, 142, 204) 0px 1px 0px;">Sign Up</button>
+    </div>
+  </div>
+</form>
+<!-- {% for message in get_flashed_messages() %}
+    {{ message }}
+{% endfor %} -->
+</body>
+</html>

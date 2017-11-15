@@ -1,0 +1,134 @@
+<!DOCTYPE html5>
+<html>
+  <head>
+    <title>Flask Intro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to your profile page !</h1>
+      <br>
+      <div class="container">
+  <h1>Edit Profile</h1>
+  <hr>
+  <div class="row">
+      <!-- left column -->
+      <div class="col-md-3">
+        <div class="text-center">
+          <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
+          <h6>Upload a different photo...</h6>
+          
+          <input type="file" class="form-control">
+        </div>
+      </div>
+      
+      <!-- edit form column -->
+      <div class="col-md-9 personal-info">
+        <div class="alert alert-info alert-dismissable">
+          <a class="panel-close close" data-dismiss="alert">×</a> 
+          <i class="fa fa-coffee"></i>
+          <div id="infos">All Fields need to be filled</div>
+          
+        </div>
+        <h3>Personal information</h3>
+        
+        <form action="/update_profile" method="post" class="form-horizontal" role="form" name="form1">
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Name:</label>
+            <div class="col-lg-8">
+              <input class="form-control" type="text" value="{{session['name']}}" name="name" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Email:</label>
+            <div class="col-lg-8">
+              <input class="form-control" type="email" value="{{session['email']}}" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Password:</label>
+            <div class="col-md-8">
+              <!-- pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$" -->
+              <input class="form-control" id="txtNewPassword" value="" type="password" name="password" required minlength="8" 
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Confirm password:</label>
+            <div class="col-md-8">
+              <input class="form-control" id="txtConfirmPassword"  type="password" name="field2" onblur="checkForm(this);" required minlength="6">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Gender:</label>
+            <div class="col-lg-8">
+              <div class="ui-select">
+                
+                <select id="user_gender" class="form-control" name="gender" >
+
+                  {% if session['gender'] == "Male" %}
+                    <option value="Female">Female</option>
+                    <option value="Male" selected="selected">Male</option>
+                  {% else %}
+                     <option value="Female" selected="selected">Female</option>
+                    <option value="Male">Male</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!--<div class="form-group">
+            <label class="col-lg-3 control-label">Time Zone:</label>
+            <div class="col-lg-8">
+              <div class="ui-select">
+                <select id="user_time_zone" class="form-control">
+                  <option value="Hawaii">(GMT-10:00) Hawaii</option>
+                  <option value="Alaska">(GMT-09:00) Alaska</option>
+                  <option value="Pacific Time (US &amp; Canada)">(GMT-08:00) Pacific Time (US &amp; Canada)</option>
+                  <option value="Arizona">(GMT-07:00) Arizona</option>
+                  <option value="Mountain Time (US &amp; Canada)">(GMT-07:00) Mountain Time (US &amp; Canada)</option>
+                  <option value="Central Time (US &amp; Canada)" selected="selected">(GMT-06:00) Central Time (US &amp; Canada)</option>
+                  <option value="Eastern Time (US &amp; Canada)">(GMT-05:00) Eastern Time (US &amp; Canada)</option>
+                  <option value="Indiana (East)">(GMT-05:00) Indiana (East)</option>
+                </select>
+              </div>
+            </div>
+          </div>-->
+          <div class="form-group">
+            <label class="col-md-3 control-label">Region:</label>
+            <div class="col-md-8">
+              <input class="form-control" type="text" value="{{session['region']}}" name="region" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label"></label>
+            <div class="col-md-8">
+              <input type="submit" class="btn btn-primary" value="Save Changes"> 
+              <span></span>
+              <input type="reset" class="btn btn-default" value="Cancel">
+            </div>
+          </div>
+        </form>
+      </div>
+  </div>
+</div>
+<hr>
+      <p>Click <a href="/logout">here</a> to logout.</p>
+      {% for message in get_flashed_messages() %}
+        {{ message }}
+      {% endfor %}
+    </div>
+  </body>
+  <script type="text/javascript" charset="utf-8">
+
+    function checkForm(form1){
+
+    if(document.form1.field1.value==document.form1.field2.value){
+        document.getElementById("infos").innerHTML = "Passwords are identical";
+    }else{
+        document.getElementById("infos").innerHTML = "Passwords are different";
+    }
+  }
+  </script>
+</html>
