@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body >
+<style type="text/css">
+
+body{
+}
+#top {
+ width: 50%; 
+ margin-right: auto; margin-left: auto;
+}
+
+textarea {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.button {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
+    background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
+    border-radius: 6px; 
+    border: 1px solid rgb(132, 187, 243); 
+    cursor: pointer; color: rgb(255, 255, 255); 
+    font-family: Arial; 
+    font-size: 15px; 
+    font-weight: bold; 
+    padding: 6px 24px; 
+    text-decoration: none; 
+    text-shadow: rgb(82, 142, 204) 0px 1px 0px;
+    margin-left: 2.5px;
+}
+
+.button2 {
+box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
+background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
+border-radius: 6px; 
+border: 1px solid rgb(132, 187, 243); 
+display: inline-block; 
+cursor: pointer; color: rgb(255, 255, 255); 
+font-family: Arial; 
+font-size: 15px; 
+font-weight: bold; 
+padding: 6px 24px; 
+text-decoration: none; 
+text-shadow: rgb(82, 142, 204) 0px 1px 0px;
+
+}
+
+#sub {
+  width: 100%;
+  position: relative;
+}
+
+
+#editSomething, #deleteSomething {
+  float: right;
+  margin-top: 10px;
+  margin-right:5px;
+  margin-left:10px;
+}
+p, #editSomething, #deleteSomething {
+  display:inline-block;
+  vertical-align: middle;
+}
+
+#likes{
+  display:inline-block;  
+  vertical-align: top; 
+}
+
+#dislikes{
+  display:inline-block;  
+  vertical-align: top; 
+}
+
+#contents{
+  position: relative;
+}
+
+.mini-button1{
+  margin-top: 10px;
+  margin-right: 5px;
+  box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
+  background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
+  border-radius: 6px; 
+  border: 1px solid rgb(132, 187, 243); 
+  display: inline-block; 
+  cursor: pointer; color: rgb(255, 255, 255); 
+  font-family: Arial; 
+  font-size: 15px; 
+  font-weight: bold; 
+  padding: 6px 24px; 
+  text-decoration: none; 
+  text-shadow: rgb(82, 142, 204) 0px 1px 0px;
+}
+
+.mini-button2{
+  margin-top: 10px;
+  margin-right: 5px;
+  box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
+  background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
+  border-radius: 6px; 
+  border: 1px solid rgb(132, 187, 243); 
+  cursor: pointer; color: rgb(255, 255, 255); 
+  font-family: Arial; 
+  font-size: 15px; 
+  font-weight: bold; 
+  padding: 6px 24px; 
+  text-decoration: none; 
+  text-shadow: rgb(82, 142, 204) 0px 1px 0px;
+}
+
+#button-group{
+}
+
+#number1, #number2{
+  margin-top: 15px;
+  margin-right: 5px;
+  width: 10px;
+  background-color: rgb(220, 236, 251);
+}
+
+#number3{
+  margin-right: auto;
+
+}
+
+#popup{
+  width: 500;
+  height: 400;
+}
+
+#number1, #number2, #likes, #dislikes{
+float: right;
+}
+
+
+</style>  
+<script type="text/javascript">
+
+  function follow(id){
+    var location = '/follow_from_follows?user_id=' + id;
+    window.location.href = location;
+  }
+
+  function unfollow(id){
+     var location = '/follows/unfollow?user_id=' + id;
+    window.location.href = location;
+  }
+</script>
+<p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
+<div id="top">
+  <h1>My followers</h1>
+
+</div>
+<br>
+
+{% if users != 0 %}
+ {% for user in users %}
+
+<div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
+  <div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
+    <div id="sub">
+
+     <h4>Name: {{user[1]}}</h4>
+
+     <h4>Email: {{user[2]}}</h4>
+
+     <h4>Gender: {{user[4]}}</h4>
+
+     <h4>Phone number: {{user[5]}}</h4>
+
+      <h4>Region: {{user[7]}}</h4>
+
+    </div>
+    
+    <div id="button-group">
+          <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+        
+        <p>posts: <a href="/post/user?user_id={{user[0]}}">{{user[9]}}<a></p>
+        <p>followers: {{user[11]}}</p>
+
+        {% if user[0] not in session['user_follow'] %}
+
+        <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
+
+        <input type="button" class="mini-button1" id="likes" onclick="follow('{{user[0]}}');" value="Follow"/>
+
+          {% else %}
+          
+        <input type="button" class="mini-button1" id="dislikes" onclick="unfollow('{{user[0]}}');" value="Stop following"/>
+          {% endif %}
+        
+    </div>
+  </div>
+</div>
+
+<br>
+{% endfor %}
+{% endif %}
+<hr>
+
+<p>Click <a  href="/logout">here </a> to logout.</p> <br>
+
+
+</body>
+</html>

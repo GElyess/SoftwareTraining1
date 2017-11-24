@@ -148,103 +148,70 @@ float: right;
 
 </style>  
 <script type="text/javascript">
-  function incrementValue1(id)
-  {
-      var value = parseInt(document.getElementById('like_'+ id).value, 10);
-      value = isNaN(value) ? 0 : value;
-      value++;
-      document.getElementById('like_'+ id).value = value;
-  }
-  function incrementValue2(id)
-  {
-      var value = parseInt(document.getElementById('like_'+ id).value, 10);
-      value = isNaN(value) ? 0 : value;
-      value--;
-      document.getElementById('like_'+ id).value = value;
-  }
 
-  function hide(id) {
-        document.getElementById('edit_' + id).style.display = 'none'; 
-
-        var text = document.getElementById('text_' + id);
-        var hint = text.getAttribute('placeholder')
-        text.removeAttribute('disabled'); 
-        text.removeAttribute('placeholder')
-        text.value = hint;
-    } 
-
-  function delete_post(id){
-    var location = '/post/delete?post_id=' + id;
+  function follow(id){
+    var location = '/follow?user_id=' + id;
     window.location.href = location;
   }
 
-  function goto_comment(id){
-      var location = '/blog_comment?post_id=' + id;
-      window.location.href = location;
-    }
-
-  function like_post(id){
-    var location = '/post/like?post_id=' + id;
-    window.location.href = location;
-  }
-
-  function dislike_post(id){
-     var location = '/post/unlike?post_id=' + id;
+  function unfollow(id){
+     var location = '/unfollow?user_id=' + id;
     window.location.href = location;
   }
 </script>
-
 <p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
-
 <div id="top">
-  <form  action="/post/post" method="post" id="post_blog">
-    <textarea id="content" form="post_blog" name="content" rows="10" value="" placeholder="Write your post in here"></textarea>
-    <input value="Submit" class="button" id="submitSomething" name="submitSomething" type="submit">
+  <form  action="/search" method="get" id="post_blog">
+    <input type="text" name="name" id="name">
+    <select id="by" name="by">
+      <option value="none" selected>Search by</option>
+      <option value="username">User name</option>
+      <option value="email">Mail</option>
+      <option value="both">Both</option>
+    </select>
+
+    <input value="Search" class="button" type="submit">
   </form>
-    <!---->
 
 </div>
 <br>
 
-{% if posts != 0 %}
- {% for post in posts %}
+{% if users != 0 %}
+ {% for user in users %}
 
 <div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
   <div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
     <div id="sub">
-      <p>{{post[6]}}</p>
 
-      {% if post[0] == session['id'] %}
-      <button value="edit" class="button2" id="edit_{{post[1]}}" style="display: true;" name="editSomething" onclick=" document.getElementById( 'validate_{{post[1]}}' ).setAttribute('style', ''); hide('{{post[1]}}');"> edit </button>
-      <button value="delete" class="button2" id="delete_{{post[1]}}" onclick="delete_post('{{post[1]}}')" name="deleteSomething"> delete </button>
+     <h4>Name: {{user[1]}}</h4>
 
-      {% endif %}
+     <h4>Email: {{user[2]}}</h4>
+
+     <h4>Gender: {{user[4]}}</h4>
+
+     <h4>Phone number: {{user[5]}}</h4>
+
+      <h4>Region: {{user[7]}}</h4>
 
     </div>
     
     <div id="button-group">
-      <form action="/post/update" method="post" id="edit_post{{post[1]}}">
-        <!--<div id="contents">-->
-          <textarea id="text_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
-        <!--</div>-->
-        <input type="button" id="number3" value="comment" onclick="goto_comment('{{post[1]}}')" class="mini-button1">
-        <input type="text" id="like_{{post[1]}}" name="content" value="{{post[4]}}" disabled />
-        <input  name="post_id" type="hidden" value="{{post[1]}}">
+          <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+        
 
-        <button value="validate" class="button2" id="validate_{{post[1]}}" style="display:none" name="validateSomething" type="submit"> validate </button>
+        <p>posts: <a href="/post/user?user_id={{user[0]}}">{{user[9]}}<a></p>
+        <p>followers: {{user[11]}}</p>
 
-        {% if post[1] not in session['post_likes'] %}
+        {% if user[0] not in session['user_follow'] %}
 
-        <input type="button" class="mini-button1" id="likes" onclick="like_post('{{post[1]}}');/*this.disabled=true;
-          document.getElementById('dislikes').disabled = true; this.value='Liked!';*/" value="Like"/>
+        <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
+
+        <input type="button" class="mini-button1" id="likes" onclick="follow('{{user[0]}}');" value="Follow"/>
 
           {% else %}
           
-        <input type="button" class="mini-button1" id="dislikes" onclick="dislike_post('{{post[1]}}');/* this.disabled=true; 
-          document.getElementById('likes').disabled = true; this.value='Disliked!';*/" value="Dislike"/>
+        <input type="button" class="mini-button1" id="dislikes" onclick="unfollow('{{user[0]}}');" value="Stop following"/>
           {% endif %}
-
-       </form>
         
     </div>
   </div>
@@ -256,7 +223,7 @@ float: right;
 <hr>
 
 <p>Click <a  href="/logout">here </a> to logout.               </p> <br>
-<p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
+
 
 </body>
 </html>

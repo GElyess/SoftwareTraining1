@@ -1,5 +1,6 @@
 #from database import DB as db
 import database
+import follow
 from tools import login_required, valid_args
 from flask import Flask, flash, session, redirect, request, render_template, url_for
 
@@ -102,6 +103,34 @@ def post_array():
 	result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", (), "all")
 	return result
 
+@login_required
 def posts():
 	result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", (), "all")
 	return str(result)
+
+@login_required
+def post_user():
+	args = (str(request.args.get('user_id', None)))
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = "
+	sql += args[0]
+	sql += " ORDER BY public.posts.post_time DESC"
+	print("ARGS:", args)
+	if not valid_args(args):
+		return redirect(url_for('dashboard'))
+	result = database.DB.select(sql, None, "all")
+	#result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = %s ORDER BY public.posts.post_time DESC", args, "all")
+	#print(result)
+	return render_template('user_posts.html', posts = result)
+
+@login_required
+def post_mine_and_followed():
+	follow.session_followers()
+	id_string = "("
+	for follower in session['user_follow']:
+		id_string = id_string + str(follower) + ","
+	id_string = id_string + str(session['id']) + ")"
+
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
+	sql += "WHERE public.posts.user_id IN " + id_string + "ORDER BY public.posts.post_time DESC"
+	result = database.DB.select(sql, None, "all")
+	return render_template('post_user_and_follow.html', posts = result)

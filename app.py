@@ -10,6 +10,8 @@ import os
 #from comment import *
 import comment
 import post
+import search
+import follow
 
 """TRY USING THIS"""
 
@@ -36,6 +38,20 @@ app.add_url_rule('/post/post', 'post_add', post.post_add, methods=['POST'])
 app.add_url_rule('/post/update', 'post_edit', post.post_edit, methods=['POST'])
 app.add_url_rule('/post/delete', 'post_delete', post.post_delete, methods=['GET'])
 app.add_url_rule('/post/get', 'posts', post.posts)
+app.add_url_rule('/post/user', 'post_user', post.post_user, methods=['GET'])
+app.add_url_rule('/post/user_and_followed', 'post_mine_and_followed', post.post_mine_and_followed)
+
+#user search
+app.add_url_rule('/search', 'search', search.search)
+app.add_url_rule('/back_to_search', 'back_to_search', search.back_to_search)
+#app.add_url_rule('/search/user', 'search_user', )
+
+#follow functions
+app.add_url_rule('/follow', 'follow', follow.follow, methods=['GET'])
+app.add_url_rule('/unfollow', 'unfollow', follow.unfollow, methods=['GET'])
+app.add_url_rule('/my_follows', 'my_follows', follow.my_follows)
+app.add_url_rule('/my_followers', 'my_followers', follow.my_followers)
+app.add_url_rule('/follows/unfollow', 'follows_unfollow', follow.follows_unfollow, methods=['GET'])
 
 
 # use decorators to link the function to a url
@@ -55,7 +71,7 @@ def dashboard():
 @login_required
 def blog():
 	post.session_post_likes()
-	print("POST LIKES=", session['post_likes'])
+	#print("POST LIKES=", session['post_likes'])
 	"""for i in session['post_likes']:
 		print(type(i), " ", i)"""
 	result = post.post_array()
@@ -117,7 +133,7 @@ def login():
 		if not valid_args(args):
 			print ("invalid args")
 			return redirect(url_for('home'))
-		print("ARGS=", args)
+		#print("ARGS=", args)
 		#args = (request.form['username'], request.form['password'])
 		args = (request.form['username'], MD5(request.form['password']))
 		result = database.DB.select("SELECT * FROM public.user where name = %s and password = %s;", args)
@@ -135,8 +151,12 @@ def login():
 			session['phone'] = result[5]
 			session['region'] = result[7]
 			session['description'] = result[8]
+			session['posts_number'] = result[9]
+			session['follow'] = result[10]
+			session['followed'] = result[11]
 			comment.session_comment_likes()
 			post.session_post_likes()
+			follow.session_followers()
 			NAME = request.form['username']
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
@@ -152,7 +172,7 @@ def logout():
 
 @app.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
-	print("SESSION=", session)
+	#print("SESSION=", session)
 	if request.method == 'POST':
 		fields = (request.form.get('name', None), request.form.get('email', None), request.form.get('password', None), request.form.get('region', None), request.form.get('gender', None))
 		if not valid_args(fields):
