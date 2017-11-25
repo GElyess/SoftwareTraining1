@@ -85,7 +85,8 @@ def post_edit():
 			return 'ERROR: insertion'
 		return redirect(url_for('blog'))
 	return result
-
+#I change this function
+#--johnny--
 @login_required
 def post_delete():
 	result = "ERROR: get"
@@ -93,6 +94,11 @@ def post_delete():
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
 			return '0'
+		#--johnny--
+		#just delete comment before delete post is OK
+		result0 = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND post_id =  %s;", args)
+		#
+		#
 		result = database.DB.insert("DELETE FROM public.posts WHERE user_id = %s AND post_id = %s;", args)
 		if result != 1:
 			return 'ERROR: deletion'
