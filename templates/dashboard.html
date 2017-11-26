@@ -14,20 +14,22 @@
        <p>You are followed by <a href="/my_followers">{{session['followed']}}</a> people.</p>
        <p>You have created <a href="post/user?user_id={{session['id']}}">{{session['posts_number']}}</a> post(s).</p>
        <p>Your posts and your followed <a href="/post/user_and_followed">here</a> .</p>
+       <p>Click <a href="/logout">here</a> to logout.</p>
+
       <br>
       <div class="container">
   <h1>Edit Profile</h1>
   <hr>
-  <div class="row">
+<!--  <div class="row">-->
       <!-- left column -->
-      <div class="col-md-3">
+     <!-- <div class="col-md-3">
         <div class="text-center">
           <img src="//placehold.it/100" class="avatar img-circle" alt="avatar">
           <h6>Upload a different photo...</h6>
           
           <input type="file" class="form-control">
         </div>
-      </div>
+      </div>-->
       
       <!-- edit form column -->
       <div class="col-md-9 personal-info">
@@ -102,8 +104,6 @@
   </div>
 </div>
 <hr>
-      <p>Click <a href="/logout">here</a> to logout.</p>
-      <p>Click <a href="/blog">here</a> to blog.</p>
       {% for message in get_flashed_messages() %}
         {{ message }}
       {% endfor %}
