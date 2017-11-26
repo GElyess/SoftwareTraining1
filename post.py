@@ -69,6 +69,8 @@ def post_add():
 		result = database.DB.insert("INSERT INTO public.posts (user_id, post_content, post_time, likes, post_comments_number) VALUES (%s, %s, current_timestamp, %s, %s);", args)
 		if result == 0:
 			return "ERROR: insertion"
+		print (type(session['posts_number']))
+		session['posts_number'] += 1
 		return redirect(url_for('blog'))
 
 	return str(result)
@@ -85,7 +87,8 @@ def post_edit():
 			return 'ERROR: insertion'
 		return redirect(url_for('blog'))
 	return result
-
+#I change this function
+#--johnny--
 @login_required
 def post_delete():
 	result = "ERROR: get"
@@ -93,6 +96,17 @@ def post_delete():
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
 			return '0'
+		#--johnny--
+		#just delete comment before delete post is OK
+
+
+		database.DB.insert("DELETE FROM public.comment_like WHERE comment_id = (SELECT public.comments.comment_id FROM public.comments WHERE public.comments.post_id = " + request.args['post_id'] + ");")
+
+		result0 = database.DB.insert("DELETE FROM public.post_like WHERE post_id = "+ request.args['post_id'] +";", None)
+
+		result0 = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND post_id =  %s;", args)
+		#
+		#
 		result = database.DB.insert("DELETE FROM public.posts WHERE user_id = %s AND post_id = %s;", args)
 		if result != 1:
 			return 'ERROR: deletion'
