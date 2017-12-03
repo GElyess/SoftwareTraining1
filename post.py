@@ -100,11 +100,11 @@ def post_delete():
 		#just delete comment before delete post is OK
 
 
-		database.DB.insert("DELETE FROM public.comment_like WHERE comment_id = (SELECT public.comments.comment_id FROM public.comments WHERE public.comments.post_id = " + request.args['post_id'] + ");")
+		"""database.DB.insert("DELETE FROM public.comment_like WHERE comment_id = (SELECT public.comments.comment_id FROM public.comments WHERE public.comments.post_id = " + request.args['post_id'] + ");")
 
 		result0 = database.DB.insert("DELETE FROM public.post_like WHERE post_id = "+ request.args['post_id'] +";", None)
 
-		result0 = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND post_id =  %s;", args)
+		result0 = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND post_id =  %s;", args)"""
 		#
 		#
 		result = database.DB.insert("DELETE FROM public.posts WHERE user_id = %s AND post_id = %s;", args)
@@ -115,6 +115,15 @@ def post_delete():
 
 def post_array():
 	result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", (), "all")
+	follow.session_followers()
+	id_string = "("
+	for follower in session['user_follow']:
+		id_string = id_string + str(follower) + ","
+	id_string = id_string + str(session['id']) + ")"
+
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
+	sql += "WHERE public.posts.user_id IN " + id_string + "ORDER BY public.posts.post_time DESC"
+	result = database.DB.select(sql, None, "all")
 	return result
 
 @login_required
