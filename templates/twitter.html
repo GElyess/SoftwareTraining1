@@ -79,6 +79,11 @@ p, #editSomething, #deleteSomething {
   vertical-align: top; 
 }
 
+#unfollow{
+  display:inline-block;  
+  vertical-align: top; 
+}
+
 #dislikes{
   display:inline-block;  
   vertical-align: top; 
@@ -141,7 +146,7 @@ p, #editSomething, #deleteSomething {
   height: 400;
 }
 
-#number1, #number2, #likes, #dislikes{
+#number1, #number2, #likes, #unfollow, #dislikes{
 float: right;
 }
 
@@ -192,6 +197,12 @@ float: right;
      var location = '/post/unlike?post_id=' + id;
     window.location.href = location;
   }
+
+  function stop_following(id){
+    var location = '/unfollow/blog?user_id=' + id
+     window.location.href = location;
+  }
+
 </script>
 
 <p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
@@ -214,9 +225,14 @@ float: right;
     <div id="sub">
       <p>{{post[6]}}</p>
 
+
       {% if post[0] == session['id'] %}
       <button value="edit" class="button2" id="edit_{{post[1]}}" style="display: true;" name="editSomething" onclick=" document.getElementById( 'validate_{{post[1]}}' ).setAttribute('style', ''); hide('{{post[1]}}');"> edit </button>
       <button value="delete" class="button2" id="delete_{{post[1]}}" onclick="delete_post('{{post[1]}}')" name="deleteSomething"> delete </button>
+      
+      {% else %}
+
+      <input type="button" class="mini-button1" id="unfollow" onclick="stop_following('{{post[0]}}');" value="Stop following" />            
 
       {% endif %}
 
@@ -240,8 +256,7 @@ float: right;
 
           {% else %}
           
-        <input type="button" class="mini-button1" id="dislikes" onclick="dislike_post('{{post[1]}}');/* this.disabled=true; 
-          document.getElementById('likes').disabled = true; this.value='Disliked!';*/" value="Dislike"/>
+        <input type="button" class="mini-button1" id="dislikes" onclick="stop_following('{{post[0]}}');" value="Dislike"/>
           {% endif %}
 
        </form>

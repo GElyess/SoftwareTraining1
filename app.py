@@ -49,6 +49,7 @@ app.add_url_rule('/back_to_search', 'back_to_search', search.back_to_search)
 #follow functions
 app.add_url_rule('/follow', 'follow', follow.follow, methods=['GET'])
 app.add_url_rule('/unfollow', 'unfollow', follow.unfollow, methods=['GET'])
+app.add_url_rule('/unfollow/blog', 'unfollow_blog', follow.unfollow_blog, methods=['GET'])
 app.add_url_rule('/my_follows', 'my_follows', follow.my_follows)
 app.add_url_rule('/my_followers', 'my_followers', follow.my_followers)
 app.add_url_rule('/follows/unfollow', 'follows_unfollow', follow.follows_unfollow, methods=['GET'])

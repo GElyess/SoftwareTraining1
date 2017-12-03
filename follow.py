@@ -34,6 +34,17 @@ def follow():
 		return redirect(url_for('back_to_search'))
 	return str(result)
 
+def do_unfollow(user_id):
+	args = (session['id'], user_id)
+	if not valid_args(args):
+		return -1
+	if args[1] not in session['user_follow']:
+		return -2
+	result = database.DB.insert("DELETE FROM public.user_follow WHERE user_follow_id = %s AND user_followed_id = %s;", args)
+	#session['post_likes'].append(int(args[1]))
+	session['follow'] -= 1
+	return (0)
+
 @login_required
 def unfollow():
 	result = "Error: get"
@@ -49,6 +60,11 @@ def unfollow():
 		session['follow'] -= 1
 		return redirect(url_for('back_to_search'))
 	return str(result)
+
+@login_required
+def unfollow_blog():
+	res = do_unfollow(int(request.args.get('user_id', None)))
+	return redirect(url_for('blog'))
 
 @login_required
 def follows_unfollow():
