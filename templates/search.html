@@ -199,7 +199,7 @@ float: right;
           <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
         
 
-        <p>posts: <a href="/post/user?user_id={{user[0]}}">{{user[9]}}<a></p>
+        <p>posts: {{user[9]}}</p>
         <p>followers: {{user[11]}}</p>
 
         {% if user[0] not in session['user_follow'] %}
