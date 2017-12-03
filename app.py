@@ -202,5 +202,5 @@ def update_profile():
  
 # start the server with the 'run()' method
 if __name__ == '__main__':
-	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
+	database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
 	app.run(debug=True)
