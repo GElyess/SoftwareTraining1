@@ -39,7 +39,7 @@ app.add_url_rule('/post/update', 'post_edit', post.post_edit, methods=['POST'])
 app.add_url_rule('/post/delete', 'post_delete', post.post_delete, methods=['GET'])
 app.add_url_rule('/post/get', 'posts', post.posts)
 app.add_url_rule('/post/user', 'post_user', post.post_user, methods=['GET'])
-app.add_url_rule('/post/user_and_followed', 'post_mine_and_followed', post.post_mine_and_followed)
+#app.add_url_rule('/post/user_and_followed', 'post_mine_and_followed', post.post_mine_and_followed)
 
 #user search
 app.add_url_rule('/search', 'search', search.search)
@@ -57,24 +57,20 @@ app.add_url_rule('/follows/unfollow', 'follows_unfollow', follow.follows_unfollo
 
 # use decorators to link the function to a url
 @app.route('/')
-#@login_required
 def home():
-    return render_template('login.html')
-    #return render_template('dashboard.html', lol=name)  # render a template
-    # return "Hello, World!"  # return a string
+	if database.DB.connected == False:
+		return errorDB
+	return render_template('login.html')
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', lol=name)
+	return render_template('dashboard.html')
 
 @app.route('/blog')
 @login_required
 def blog():
 	post.session_post_likes()
-	#print("POST LIKES=", session['post_likes'])
-	"""for i in session['post_likes']:
-		print(type(i), " ", i)"""
 	result = post.post_array()
 	return render_template('twitter.html', posts = result)
 
@@ -89,6 +85,8 @@ def blog_comment():
 	if post_id == None:
 		return redirect(url_for('blog'))
 	check = database.DB.select("SELECT post_id from public.posts WHERE post_id = %s;", (post_id,))
+	if check == -1:
+		return errorDB
 	if not check:
 		return redirect(url_for('blog'))
 	post_id = int(post_id)
@@ -111,13 +109,11 @@ def register():
 
 		if not matches(request.form['email'], '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'):
 			return "PATTERN ERROR EMAIL"
-		#if not matches(request.form['password'],"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$") or len(request.form['password']) < 8:
-		#	return "PARRERN ERROR PASSWORD"
-			#return redirect(url_for('register'))			
-
-		args = (request.form['username'], request.form['email'], MD5(request.form['password']), "", "Male", "", "0000000000")
-		database.DB.insert("INSERT INTO public.user (created_at, name, email, password, user_region, gender, user_description, phone) VALUES (current_timestamp, %s, %s, %s, %s, %s, %s, %s);", args)
-		#db.close()
+		
+		args = (request.form['username'], request.form['email'], MD5(request.form['password']))
+		res = database.DB.insert("INSERT INTO public.user (name, email, password) VALUES (%s, %s, %s);", args)
+		if res == -1:
+			return errorDB
 		return redirect(url_for('login'))
 		
 	return render_template('register.html')  # render a template
@@ -128,18 +124,16 @@ def register():
 def login():
 	error = None
 	if request.method == 'POST':
-		#cur = conn.cursor()
-		#fields = ('username', 'password')
 		args = (request.form.get('username', None), request.form.get('password', None))
 		if not valid_args(args):
 			print ("invalid args")
 			return redirect(url_for('home'))
-		#print("ARGS=", args)
-		#args = (request.form['username'], request.form['password'])
 		args = (request.form['username'], MD5(request.form['password']))
+		#print(args)
 		result = database.DB.select("SELECT * FROM public.user where name = %s and password = %s;", args)
-		#db.close()
-		print("RESULT=", result)
+		if result == -1:
+			return errorDB
+		#print("RESULT=", result)
 		if not result:
 			error = 'Invalid Credentials. Please try again.'
 		else:
@@ -157,7 +151,8 @@ def login():
 			session['followed'] = result[11]
 			comment.session_comment_likes()
 			post.session_post_likes()
-			follow.session_followers()
+			if follow.session_followers() == -1:
+				return errorDB
 			NAME = request.form['username']
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
@@ -189,7 +184,8 @@ def update_profile():
 
 		args = (request.form['name'], request.form['email'], MD5(request.form['password']), request.form['gender'], request.form['region'], session['id'])
 		result = database.DB.update("UPDATE public.user SET name = %s, email = %s, password = %s, gender = %s, user_region = %s WHERE id = %s", args)
-		#db.close()
+		if result == -1:
+			return errorDB
 		session['name'] = request.form['name']
 		session['email'] = request.form['email']
 		session['password'] = request.form['password']
@@ -203,5 +199,6 @@ def update_profile():
  
 # start the server with the 'run()' method
 if __name__ == '__main__':
-	database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
+	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
+	#database.NewConn("dbname='project_trainingze' user='postgres' password='root' host='localhost' port='5432'")
 	app.run(debug=True)

@@ -220,10 +220,55 @@ float: right;
 <br>
 {% endfor %}
 {% endif %}
+
+<!-- LIST FOR PEOPLE FOLLOWED -->
+
+{% if followed != 0 and followed %}
+<h1>People I follow:</h1>
+{% for user in followed %}
+
+
+<div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
+  <div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
+    <div id="sub">
+
+     <h4>Name: {{user[1]}}</h4>
+
+     <h4>Email: {{user[2]}}</h4>
+
+     <h4>Gender: {{user[4]}}</h4>
+
+     <h4>Phone number: {{user[5]}}</h4>
+
+      <h4>Region: {{user[7]}}</h4>
+
+    </div>
+    
+    <div id="button-group">
+          <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+        
+
+        <p>posts: {{user[9]}}</p>
+        <p>followers: {{user[11]}}</p>
+
+        {% if user[0] not in session['user_follow'] %}
+
+        <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
+
+        <input type="button" class="mini-button1" id="likes" onclick="follow('{{user[0]}}');" value="Follow"/>
+
+          {% else %}
+          
+        <input type="button" class="mini-button1" id="dislikes" onclick="unfollow('{{user[0]}}');" value="Stop following"/>
+          {% endif %}
+        
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+{% endif %}
 <hr>
-
-<p>Click <a  href="/logout">here </a> to logout.               </p> <br>
-
 
 </body>
 </html>

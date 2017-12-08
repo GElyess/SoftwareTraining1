@@ -3,6 +3,7 @@ import re
 from functools import wraps
 from flask import Flask, flash, session, redirect, request, render_template, url_for
 
+errorDB = "Database unreachable"
 
 def MD5(string):
 	h = md5()
