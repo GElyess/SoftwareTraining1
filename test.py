@@ -64,6 +64,16 @@ class FlaskrTestCase(unittest.TestCase):
     #     DB.insert("DELETE FROM public.comment_like WHERE name = 'johnnytest'")
     #     self.assertEqual(str1,'johnnytest')
 
+    #ANSWER: use DB class
+    #you must arguments this way: the sql string, the values you want to precise (you mus use a tuple).
+    #example: DB.select("SELECT * FROM user WHERE id = %s and name = %s;", (1,Johnny))
+    #executes a request equivalent to:
+    #SELECT * FROM user WHERE id = 1 AND name = 'Johnny'
+
+    #insert and update will modify existing rows and return the number of rows affected
+    ##select will return one row if it finds. if you add the third optional argument "all", it will return an array of all the rows that match the request
+    # a row is epresented by an array
+
 
 if __name__ == '__main__':
     unittest.main()
