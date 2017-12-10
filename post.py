@@ -11,7 +11,7 @@ def session_post_likes():
 	for row in result:
 		likes.append(row[0])
 	session['post_likes'] = likes
-	print ("POST LIKES",likes)
+	#print ("POST LIKES",likes)
 
 
 @login_required
@@ -124,7 +124,7 @@ def post_user():
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = "
 	sql += args[0]
 	sql += " ORDER BY public.posts.post_time DESC"
-	print("ARGS:", args)
+	#print("ARGS:", args)
 	if not valid_args(args):
 		return redirect(url_for('dashboard'))
 	result = database.DB.select(sql, None, "all")

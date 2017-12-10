@@ -5,7 +5,7 @@ from flask import Flask, flash, session, redirect, request, render_template, url
 import pprint
 
 def session_comment_likes():
-	print(session)
+	#print(session)
 	args = (session['id'],)
 	likes = []
 	result = database.DB.select("SELECT comment_id FROM comment_like WHERE user_id = %s", args, "all")

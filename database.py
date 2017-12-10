@@ -58,7 +58,7 @@ def NewConn(connexion_string):
 	global DB
 	DB = _Db(connexion_string)
 	#DB = "new connexion"
-	print(DB)
+	#print(DB)
 
 """def test():
 	global DB
