@@ -20,6 +20,7 @@ class FlaskrTestCase(unittest.TestCase):
         #app.init_db()
 
     def tearDown(self):
+        database.DB.close()
         os.close(self.db_fd)
         os.unlink(app.app.config['DATABASE'])
 

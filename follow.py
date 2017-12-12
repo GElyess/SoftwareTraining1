@@ -24,6 +24,7 @@ def session_followers():
 @login_required
 def follow():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -33,9 +34,11 @@ def follow():
 		result = database.DB.insert("INSERT INTO public.user_follow (user_follow_id, user_followed_id) VALUES (%s, %s);", args)
 		if result == -1:
 			return errorDB
+		if result != 1:
+			status_code = 404
 		session['post_likes'].append(int(args[1]))
 		session['follow'] += 1
-		return redirect(url_for('back_to_search'))
+		return redirect(url_for('back_to_search')), status_code
 	return str(result)
 
 def do_unfollow(user_id):
@@ -49,11 +52,12 @@ def do_unfollow(user_id):
 		return errorDB
 	#session['post_likes'].append(int(args[1]))
 	session['follow'] -= 1
-	return (0)
+	return (result)
 
 @login_required
 def unfollow():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -64,19 +68,27 @@ def unfollow():
 		result = database.DB.insert("DELETE FROM public.user_follow WHERE user_follow_id = %s AND user_followed_id = %s;", args)
 		if result == -1:
 			return errorDB
+		if result != 1:
+			status_code = 404
 		session['post_likes'].append(int(args[1]))
 		session['follow'] -= 1
-		return redirect(url_for('back_to_search'))
+		return redirect(url_for('back_to_search')), status_code
 	return str(result)
 
 @login_required
 def unfollow_blog():
+	status_code = 200
 	res = do_unfollow(int(request.args.get('user_id', None)))
-	return redirect(url_for('blog'))
+	if res == -1:
+		return errorDB
+	if res != 1:
+		status_code = 404
+	return redirect(url_for('blog')), status_code
 
 @login_required
 def follows_unfollow():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -87,23 +99,30 @@ def follows_unfollow():
 		result = database.DB.insert("DELETE FROM public.user_follow WHERE user_follow_id = %s AND user_followed_id = %s;", args)
 		if result == -1:
 			return errorDB
-		session['post_likes'].append(int(args[1]))
-		session['follow'] -= 1
-		return redirect(url_for('my_follows'))
+		if result != 1:
+			status_code = 404
+		else:
+			session['post_likes'].append(int(args[1]))
+			session['follow'] -= 1
+		return redirect(url_for('my_follows')), status_code
 	return str(result)
 
 @login_required
 def my_follows():
+	status_code = 200
 	args = (str(session['id']))
 	result = database.DB.select("SELECT public.user.* FROM public.user_follow LEFT JOIN public.user ON (public.user_follow.user_followed_id = public.user.id) WHERE public.user_follow.user_follow_id = %s;", args, "all")
 	if result == -1:
 		return errorDB
-	return render_template('my_follows.html', users = result)
+	if result != 1:
+		status_code = 404
+	return render_template('my_follows.html', users = result), status_code
 
 @login_required
 def my_followers():
+	status_code = 200
 	args = (str(session['id']))
 	result = database.DB.select("SELECT public.user.* FROM public.user_follow LEFT JOIN public.user ON (public.user_follow.user_follow_id = public.user.id) WHERE public.user_follow.user_followed_id = %s;", args, "all")
 	if result == -1:
 		return errorDB
-	return render_template('my_followers.html', users = result)
+	return render_template('my_followers.html', users = result), status_code

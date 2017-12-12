@@ -93,6 +93,8 @@ def blog_comment():
 	if post_id < 0:
 		return redirect(url_for('blog'))
 	result = comment.comment_array(str(post_id))
+	if result == -1:
+		return errorDB
 	return render_template('comment.html', comments = result, post_id = post_id)
 
 @app.route('/welcome')
@@ -157,7 +159,7 @@ def login():
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
 			return redirect(url_for('dashboard'))
-	return render_template('login.html', error=error)
+	return render_template('login.html', error=error), 404
 
 @app.route('/logout')
 @login_required
@@ -195,10 +197,10 @@ def update_profile():
 		#session['description'] = request.form['phone']
 		#return render_template('index.html')
 		return redirect(url_for('dashboard'))
-	return redirect(url_for('login'))
+	return redirect(url_for('login')), 404
  
 # start the server with the 'run()' method
 if __name__ == '__main__':
-	database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
-	#database.NewConn("dbname='project_trainingze' user='postgres' password='root' host='localhost' port='5432'")
+	#database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
+	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
 	app.run(debug=True)

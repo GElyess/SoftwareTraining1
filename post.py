@@ -17,6 +17,7 @@ def session_post_likes():
 @login_required
 def post_like():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (str(session.get('id', None)), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -29,13 +30,16 @@ def post_like():
 		result = database.DB.insert("INSERT INTO public.post_like (user_id, post_id) VALUES (%s, %s);", args)
 		if result == -1:
 			return errorDB
+		if result != 1:
+			status_code = 404
 		session['post_likes'].append(int(args[1]))
-		return redirect(url_for('blog'))
+		return redirect(url_for('blog')), status_code
 	return str(result)
 
 @login_required
 def post_unlike():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -43,17 +47,20 @@ def post_unlike():
 		result = database.DB.insert("DELETE FROM public.post_like WHERE user_id = %s AND post_id = %s;", args)
 		if result == -1:
 			return errorDB
+		if result != 1:
+			status_code = 404
 		#print("POST UNLIKE: post_id=", args[1], "ET mes likes=", session['post_likes'])
 		if int(args[1]) in session['post_likes']:
 			#print("MATCH!!!")
 			session['post_likes'].remove(int(args[1]))
 			#print("RETIRE: ", session['post_likes'])
-		return redirect(url_for('blog'))
+		return redirect(url_for('blog')), status_code
 	return str(result)
 
 @login_required
 def post_add():
 	result = "error post"
+	status_code = 200
 	if request.method == 'POST':
 		args = (session.get('id', None), request.form.get('content', None),)
 		if not valid_args(args):
@@ -64,15 +71,17 @@ def post_add():
 		if result == -1:
 			return errorDB
 		if result == 0:
+			status_code = 500
 			return "ERROR: insertion"
 		#print (type(session['posts_number']))
 		session['posts_number'] += 1
-		return redirect(url_for('blog'))
+		return redirect(url_for('blog')), status_code
 	return str(result)
 
 @login_required
 def post_edit():
 	result = "Error: post"
+	status_code = 200
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('post_id', None))
 		if not valid_args(args):
@@ -81,14 +90,16 @@ def post_edit():
 		if result == -1:
 			return errorDB
 		if result != 1:
+			status_code = 404
 			return 'ERROR: insertion'
-		return redirect(url_for('blog'))
+		return redirect(url_for('blog')), status_code
 	return result
 #I change this function
 #--johnny--
 @login_required
 def post_delete():
 	result = "ERROR: get"
+	status_code = 200
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -97,8 +108,9 @@ def post_delete():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			return 'ERROR: deletion'
-		return redirect(url_for('blog'))
+			status_code = 404
+			#return 'ERROR: deletion'
+		return redirect(url_for('blog')), status_code
 	return str(result)
 
 def post_array():
@@ -108,9 +120,10 @@ def post_array():
 	for follower in session['user_follow']:
 		id_string = id_string + str(follower) + ","
 	id_string = id_string + str(session['id']) + ")"
+	args = (id_string,)
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
-	sql += "WHERE public.posts.user_id IN " + id_string + "ORDER BY public.posts.post_time DESC"
-	result = database.DB.select(sql, None, "all")
+	sql += "WHERE public.posts.user_id IN %s ORDER BY public.posts.post_time DESC"
+	result = database.DB.select(sql, args, "all")
 	return result
 
 @login_required
@@ -120,14 +133,13 @@ def posts():
 
 @login_required
 def post_user():
-	args = (str(request.args.get('user_id', None)))
-	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = "
-	sql += args[0]
-	sql += " ORDER BY public.posts.post_time DESC"
+	status_code = 200
+	args = (str(request.args.get('user_id', None)),)
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = %s  ORDER BY public.posts.post_time DESC;"
 	#print("ARGS:", args)
 	if not valid_args(args):
 		return redirect(url_for('dashboard'))
-	result = database.DB.select(sql, None, "all")
+	result = database.DB.select(sql, args, "all")
 	if result == -1:
 		return errorDB
 	return render_template('user_posts.html', posts = result)
