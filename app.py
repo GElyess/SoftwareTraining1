@@ -70,10 +70,17 @@ def dashboard():
 @app.route('/blog')
 @login_required
 def blog():
+	status_code = 200
 	post.session_post_likes()
 	result = post.post_array()
-	print('result=', result)
-	return render_template('twitter.html', posts = result)
+	#print('result=', result)
+	args = (session['id'],)
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
+	sql += "WHERE public.posts.user_id = %s ORDER BY public.posts.post_time DESC;"
+	myposts =  database.DB.select(sql, args, "all")
+	if myposts == -1 or result == -1:
+		return errorDB
+	return render_template('twitter.html', posts = myposts, followed = result), status_code
 
 @app.route('/blog_comment', methods=['GET'])
 @login_required
@@ -203,6 +210,6 @@ def update_profile():
  
 # start the server with the 'run()' method
 if __name__ == '__main__':
+	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
 	#database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
-	database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
 	app.run(debug=True)

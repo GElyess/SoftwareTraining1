@@ -218,6 +218,9 @@ float: right;
 <br>
 
 {% if posts != 0 %}
+
+<h1>My posts:</h1>
+
  {% for post in posts %}
 
 <div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
@@ -268,10 +271,62 @@ float: right;
 <br>
 {% endfor %}
 {% endif %}
-<hr>
 
-<p>Click <a  href="/logout">here </a> to logout.               </p> <br>
-<p>Click <a  href="/dashboard">here</a> to go to your dashboard.</p>
+{% if followed != 0 %}
+
+<h1>My followed posts:</h1>
+
+ {% for f in followed %}
+
+<div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
+  <div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
+    <div id="sub">
+      <p>{{f[6]}}</p>
+
+
+      {% if f[0] == session['id'] %}
+      <button value="edit" class="button2" id="edit_{{f[1]}}" style="display: true;" name="editSomething" onclick=" document.getElementById( 'validate_{{f[1]}}' ).setAttribute('style', ''); hide('{{f[1]}}');"> edit </button>
+      <button value="delete" class="button2" id="delete_{{f[1]}}" onclick="delete_post('{{f[1]}}')" name="deleteSomething"> delete </button>
+      
+      {% else %}
+
+      <input type="button" class="mini-button1" id="unfollow" onclick="stop_following('{{f[0]}}');" value="Stop following" />            
+
+      {% endif %}
+
+    </div>
+    
+    <div id="button-group">
+      <form action="/post/update" method="post" id="edit_post{{f[1]}}">
+        <!--<div id="contents">-->
+          <textarea id="text_{{f[1]}}" name="content" rows="10" form="edit_post{{f[1]}}" placeholder="{{f[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+        <!--</div>-->
+        <input type="button" id="number3" value="comment" onclick="goto_comment('{{f[1]}}')" class="mini-button1">
+        <input type="text" id="like_{{f[1]}}" name="content" value="{{f[4]}}" disabled />
+        <input  name="post_id" type="hidden" value="{{f[1]}}">
+
+        <button value="validate" class="button2" id="validate_{{f[1]}}" style="display:none" name="validateSomething" type="submit"> validate </button>
+
+        {% if followed[1] not in session['post_likes'] %}
+
+        <input type="button" class="mini-button1" id="likes" onclick="like_post('{{f[1]}}');/*this.disabled=true;
+          document.getElementById('dislikes').disabled = true; this.value='Liked!';*/" value="Like"/>
+
+          {% else %}
+          
+        <input type="button" class="mini-button1" id="dislikes" onclick="stop_following('{{f[0]}}');" value="Dislike"/>
+          {% endif %}
+
+       </form>
+        
+    </div>
+  </div>
+</div>
+
+<br>
+{% endfor %}
+{% endif %}
+
 
 </body>
 </html>
