@@ -60,7 +60,7 @@ def post_unlike():
 @login_required
 def post_add():
 	result = "error post"
-	status_code = 200
+	status_code = 301
 	if request.method == 'POST':
 		args = (session.get('id', None), request.form.get('content', None),)
 		if not valid_args(args):
@@ -71,11 +71,11 @@ def post_add():
 		if result == -1:
 			return errorDB
 		if result == 0:
-			status_code = 500
+			status_code = 304
 			return "ERROR: insertion"
 		#print (type(session['posts_number']))
 		session['posts_number'] += 1
-		return redirect(url_for('blog')), status_code
+		return redirect(url_for('blog'), code=status_code)
 	return str(result)
 
 @login_required
@@ -117,12 +117,13 @@ def post_array():
 	result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", (), "all")
 	follow.session_followers()
 	id_string = "("
-	for follower in session['user_follow']:
+	'''for follower in session['user_follow']:
 		id_string = id_string + str(follower) + ","
-	id_string = id_string + str(session['id']) + ")"
-	args = (id_string,)
+	id_string = id_string + str(session['id']) + ")"'''
+	args = (str(session['id']),)
+	sql_follow = "(SELECT user_followed_id FROM public.user_follow WHERE user_follow_id = %s)"
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
-	sql += "WHERE public.posts.user_id IN %s ORDER BY public.posts.post_time DESC"
+	sql += "WHERE public.posts.user_id = "+ sql_follow +" ORDER BY public.posts.post_time DESC"
 	result = database.DB.select(sql, args, "all")
 	return result
 

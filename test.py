@@ -47,8 +47,10 @@ class FlaskrTestCase(unittest.TestCase):
     def test_login(self):
         url = 'http://127.0.0.1:5000/login'
         status = self.get_status(url)
+        print('###########################')
+        print(status)
         rv = self.login('johnny', 'asd12345')
-        assert "Welcome to your profile page !" in str(rv.data) and status == 200
+        assert "Edit Profile" in str(rv.data) and status == 200
 
     #test blog page
     def test_login_blog(self):
@@ -60,15 +62,15 @@ class FlaskrTestCase(unittest.TestCase):
         assert "Write" in str(rv.data) and status == 200
 
     # test blog page with a wrong user and password
-    def test_wrong_login_blog(self):
-        self.login('xxd21e12rewg@$%^7', '@$#%^&*DTFGHJK')
-        rv = self.app.get('/blog')
-        url = 'http://127.0.0.1:5000/blog'
-        status = self.get_status(url)
-        print("###################")
-        print(status)
-
-        assert "" in str(rv.data)
+    # def test_wrong_login_blog(self):
+    #     self.login('xxd21e12rewg@$%^7', '@$#%^&*DTFGHJK')
+    #     rv = self.app.get('/blog')
+    #     url = 'http://127.0.0.1:5000/blog'
+    #     status = self.get_status(url)
+    #     print("###################")
+    #     print(status)
+    #     assert status == 404
+        #assert "Error: Invalid Credentials. Please try again." in str(rv.data)
 
 
 
@@ -87,6 +89,7 @@ class FlaskrTestCase(unittest.TestCase):
             email = email,
             password=password
         ), follow_redirects=True)
+
     def test_register(self):
           #fields = (request.form.get('username', None), request.form.get('email', None), request.form.get('password', None))
         rv = self.register('johnnytest','johnnytest@qq.com','asd12345')
@@ -109,6 +112,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_post(self):
         self.login('johnny','asd12345')
         rv = self.post(1,'content test66666666666666666')
+        print('###################################', str(rv.data))
         assert 'content test66666666666666666' in str(rv.data)
         database.DB.insert("DELETE FROM public.posts WHERE post_content = 'content test66666666666666666'")
         #database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test66666666666666666')

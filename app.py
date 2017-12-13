@@ -72,6 +72,7 @@ def dashboard():
 def blog():
 	post.session_post_likes()
 	result = post.post_array()
+	print('result=', result)
 	return render_template('twitter.html', posts = result)
 
 @app.route('/blog_comment', methods=['GET'])
@@ -138,6 +139,7 @@ def login():
 		#print("RESULT=", result)
 		if not result:
 			error = 'Invalid Credentials. Please try again.'
+			return render_template('login.html', error=error), 404
 		else:
 			session['logged_in'] = True
 			session['id'] = result[0]
@@ -159,7 +161,7 @@ def login():
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
 			return redirect(url_for('dashboard'))
-	return render_template('login.html', error=error), 404
+	return render_template('login.html', error=error), 200
 
 @app.route('/logout')
 @login_required
@@ -202,5 +204,5 @@ def update_profile():
 # start the server with the 'run()' method
 if __name__ == '__main__':
 	#database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
-	database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
+	database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
 	app.run(debug=True)
