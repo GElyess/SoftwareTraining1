@@ -5,7 +5,8 @@ import app
 import database
 import os
 import tempfile
-
+import requests
+import urllib
 
 class FlaskrTestCase(unittest.TestCase):
 
@@ -20,13 +21,21 @@ class FlaskrTestCase(unittest.TestCase):
         #app.init_db()
 
     def tearDown(self):
+        database.DB.close()
         os.close(self.db_fd)
         os.unlink(app.app.config['DATABASE'])
+
+    #get Http status code
+    def get_status(self,url):
+        return requests.get(url).status_code
 
     #welcome page's test
     def test_welcome(self):
         rv = self.app.get('/')
-        assert 'Please login' in str(rv.data)
+        url = 'http://127.0.0.1:5000/'
+        status = self.get_status(url)
+        assert 'Please login' in str(rv.data) and status ==200
+
 
     def login(self, username, password):
         return self.app.post('/login', data=dict(
@@ -36,22 +45,40 @@ class FlaskrTestCase(unittest.TestCase):
 
     #test login page
     def test_login(self):
+        url = 'http://127.0.0.1:5000/login'
+        status = self.get_status(url)
         rv = self.login('johnny', 'asd12345')
-        assert "Welcome to your profile page !" in str(rv.data)
+        assert "Welcome to your profile page !" in str(rv.data) and status == 200
 
     #test blog page
     def test_login_blog(self):
         self.login('johnny', 'asd12345')
         rv = self.app.get('/blog')
-        assert "Write" in str(rv.data)
+        url = 'http://127.0.0.1:5000/blog'
+        status = self.get_status(url)
+
+        assert "Write" in str(rv.data) and status == 200
+
+    # test blog page with a wrong user and password
+    def test_wrong_login_blog(self):
+        self.login('xxd21e12rewg@$%^7', '@$#%^&*DTFGHJK')
+        rv = self.app.get('/blog')
+        url = 'http://127.0.0.1:5000/blog'
+        status = self.get_status(url)
+        print("###################")
+        print(status)
+
+        assert "" in str(rv.data)
+
 
 
     #test logout function
     def test_logout(self):
         self.login('johnny', 'asd12345')
         rv = self.app.get('/logout',follow_redirects=True)
-
-        assert "You are logged out" in str(rv.data)
+        url = 'http://127.0.0.1:5000/logout'
+        status = self.get_status(url)
+        assert "You are logged out" in str(rv.data) and status ==200
         
     #test register
     def register(self, username,email, password):
@@ -63,7 +90,10 @@ class FlaskrTestCase(unittest.TestCase):
     def test_register(self):
           #fields = (request.form.get('username', None), request.form.get('email', None), request.form.get('password', None))
         rv = self.register('johnnytest','johnnytest@qq.com','asd12345')
-        assert "Please login" in str(rv.data)
+        url = 'http://127.0.0.1:5000/register'
+        status = self.get_status(url)
+        assert "Please login" in str(rv.data) and status == 200
+        database.DB.insert("DELETE FROM public.user WHERE name = 'johnnytest'")
 
 
 
@@ -73,12 +103,15 @@ class FlaskrTestCase(unittest.TestCase):
             content=content,
         ), follow_redirects=True)
 
+    def delete_post(self,id):
+        return self.app.post('/post/delete?post_id=%s'%id)
     #test a post
     def test_post(self):
         self.login('johnny','asd12345')
         rv = self.post(1,'content test66666666666666666')
         assert 'content test66666666666666666' in str(rv.data)
-
+        database.DB.insert("DELETE FROM public.posts WHERE post_content = 'content test66666666666666666'")
+        #database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test66666666666666666')
 
 
     # test insert a new user in DB
@@ -89,7 +122,7 @@ class FlaskrTestCase(unittest.TestCase):
       results = database.DB.select("SELECT name FROM public.user WHERE name = %s;", ('johnnytest',))
       # print(results[0])
       self.assertEqual(results[0], 'johnnytest')
-      database.DB.insert("DELETE FROM public.comment_like WHERE name = 'johnnytest'")
+      database.DB.insert("DELETE FROM public.user WHERE name = 'johnnytest'")
 
 
 if __name__ == '__main__':
