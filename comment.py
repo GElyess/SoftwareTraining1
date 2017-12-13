@@ -9,13 +9,15 @@ def session_comment_likes():
 	args = (session['id'],)
 	likes = []
 	result = database.DB.select("SELECT comment_id FROM comment_like WHERE user_id = %s", args, "all")
-	for row in result:
-		likes.append(row[0])
-	session['comment_likes'] = likes
+	if type(result) != type(int):
+		for row in result:
+			likes.append(row[0])
+		session['comment_likes'] = likes
 
 @login_required
 def comment_unlike():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		post_id= request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
@@ -25,12 +27,15 @@ def comment_unlike():
 		result = database.DB.insert("DELETE FROM public.comment_like WHERE user_id = %s AND comment_id =  %s;", args)
 		if result == -1:
 			return errorDB
-		return redirect(url_for('blog_comment', post_id = post_id))
+		if result != 1:
+			status_code = 404
+		return redirect(url_for('blog_comment', post_id = post_id)), status_code
 	return str(result)
 
 @login_required
 def comment_like():
 	result = "Error: get"
+	status_code = 200
 	if request.method == 'GET':
 		post_id = request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
@@ -41,12 +46,15 @@ def comment_like():
 		result = database.DB.insert("INSERT INTO public.comment_like (user_id, comment_id) VALUES (%s, %s);", args)
 		if result == -1:
 			return errorDB
-		return redirect(url_for('blog_comment', post_id = post_id))
+		if result != 1:
+			status_code = 404
+		return redirect(url_for('blog_comment', post_id = post_id)), status_code
 	return str(result)
 
-@login_required
+"""@login_required
 def delete_comment():
 	result = 0
+	status_code = 200
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -54,12 +62,15 @@ def delete_comment():
 		result = database.DB.insert("DELETE FROM public.comment_like WHERE user_id = %s AND comment_id = %s;", args)
 		if result == -1:
 			return errorDB
-	return str(result)
+		if result != 1:
+
+	return str(result)"""
 
 
 @login_required
 def post_comment():
 	result = 'Error: post'
+	status_code = 200
 	if request.method == 'POST':
 		args = (session['id'], request.form.get('post_id', None), request.form.get('comment_content', None),)
 		if not valid_args(args):
@@ -69,12 +80,15 @@ def post_comment():
 		result = database.DB.insert("INSERT INTO public.comments (user_id, post_id, comment_content) VALUES (%s, %s, %s);", args)
 		if result == -1:
 			return errorDB
-		return redirect(url_for('blog_comment', post_id = args[1]))
+		if result != 1:
+			status_code = 404
+		return redirect(url_for('blog_comment', post_id = args[1])), status_code
 	return str(result)
 
 @login_required
 def update_comment():
 	result = "Error: post"
+	status_code = 200
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('comment_id', None), request.form.get('post_id', None))
 		if not valid_args(args):
@@ -82,12 +96,15 @@ def update_comment():
 		result = database.DB.insert("UPDATE public.comments SET comment_content = %s WHERE user_id = %s AND comment_id = %s AND post_id = %s;", args)
 		if result == -1:
 			return errorDB
-		return redirect(url_for('blog_comment', post_id = args[3]))
+		if result != 1:
+			status_code = 404
+		return redirect(url_for('blog_comment', post_id = args[3])), status_code
 	return str(result)
 
 @login_required
 def delete_comment():
 	result = 'Error: get'
+	status_code = 200
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('comment_id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -95,7 +112,9 @@ def delete_comment():
 		result = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND comment_id = %s AND post_id = %s;", args)
 		if result == -1:
 			return errorDB
-		return redirect(url_for('blog_comment', post_id = args[2]))
+		if result != 1:
+			status_code = 404
+		return redirect(url_for('blog_comment', post_id = args[2])), status_code
 	return str(result)
 
 def comment_array(post_id):
