@@ -5,8 +5,13 @@
   <!--<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>-->
+   <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body >
+{% include "menu.html" %}
+
 <style type="text/css">
 
   /*background-image: url("background.jpg");*/
@@ -22,40 +27,37 @@ textarea {
   margin-bottom: 5px;
 }
 
-.button {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    width: 100%;
-    box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
-    background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
-    border-radius: 6px; 
-    border: 1px solid rgb(132, 187, 243); 
-    cursor: pointer; color: rgb(255, 255, 255); 
-    font-family: Arial; 
-    font-size: 15px; 
-    font-weight: bold; 
-    padding: 6px 24px; 
-    text-decoration: none; 
-    text-shadow: rgb(82, 142, 204) 0px 1px 0px;
-    margin-left: 2.5px;
+.label-left{
+  margin-top:20px;
 }
 
-.button2 {
-box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
-background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
-border-radius: 6px; 
-border: 1px solid rgb(132, 187, 243); 
-display: inline-block; 
-cursor: pointer; color: rgb(255, 255, 255); 
-font-family: Arial; 
-font-size: 15px; 
-font-weight: bold; 
-padding: 6px 24px; 
-text-decoration: none; 
-text-shadow: rgb(82, 142, 204) 0px 1px 0px;
-
+.label-right{
+  margin-top: 20px;
+margin-left: 5px;
 }
+
+.elem{
+  border-radius: 5px; 
+  border: 2px solid rgb(189, 219, 250); 
+  padding-right: 10px; 
+  padding-left: 10px;
+  padding-bottom:60px;
+  background-color: ghostwhite;
+}
+
+.addpost{
+  margin-top: 30px;
+   border-radius: 5px; 
+  border: 2px solid rgb(189, 219, 250); 
+  padding:5px;
+  background-color: ghostwhite;
+}
+
+.topbutton{
+  float:right;
+  margin:10px;
+}
+
 
 #sub {
   width: 100%;
@@ -69,84 +71,88 @@ text-shadow: rgb(82, 142, 204) 0px 1px 0px;
   margin-right:5px;
   margin-left:10px;
 }
-p, #editSomething, #deleteSomething {
-  display:inline-block;
-  vertical-align: middle;
-}
 
-#likes{
-  display:inline-block;  
-  vertical-align: top; 
-}
-
-#dislikes{
-  display:inline-block;  
-  vertical-align: top; 
-}
-
-#contents{
-  position: relative;
-}
-
-.mini-button1{
-  margin-top: 10px;
-  margin-right: 5px;
-  box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
-  background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
-  border-radius: 6px; 
-  border: 1px solid rgb(132, 187, 243); 
-  display: inline-block; 
-  cursor: pointer; color: rgb(255, 255, 255); 
-  font-family: Arial; 
-  font-size: 15px; 
-  font-weight: bold; 
-  padding: 6px 24px; 
-  text-decoration: none; 
-  text-shadow: rgb(82, 142, 204) 0px 1px 0px;
-}
-
-.mini-button2{
-  margin-top: 10px;
-  margin-right: 5px;
-  box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset;
-  background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 90%) rgb(189, 219, 250);
-  border-radius: 6px; 
-  border: 1px solid rgb(132, 187, 243); 
-  cursor: pointer; color: rgb(255, 255, 255); 
-  font-family: Arial; 
-  font-size: 15px; 
-  font-weight: bold; 
-  padding: 6px 24px; 
-  text-decoration: none; 
-  text-shadow: rgb(82, 142, 204) 0px 1px 0px;
-}
-
-#button-group{
-}
-
-#number1, #number2{
-  margin-top: 15px;
-  margin-right: 5px;
-  width: 10px;
-  background-color: rgb(220, 236, 251);
-}
-
-#number3{
-  margin-right: auto;
-
-}
-
-#popup{
-  width: 500;
-  height: 400;
-}
-
-#number1, #number2, #likes, #dislikes{
-float: right;
-}
 
 
 </style>  
+
+<br><br>
+
+<div id="top" class="addpost">
+  <form  action="/comment/post" method="post" id="comment_post">
+    <textarea id="comment_content" form="comment_post" name="comment_content" rows="10" value="" placeholder="Write your comment in here"></textarea>
+    <input  name="post_id" type="hidden" value="{{post_id}}">
+     <button type = "submit" style="width: 100%;" class = "btn btn-primary btn-lg glyphicon glyphicon-envelope"></button>
+  </form>
+</div>
+<br>
+
+{% if comments != 0 %}
+
+<div id="main-container" class="span7 center" style="width: 70%; margin-left: 15%; ">
+<div class = "jumbotron" style="border-radius: 5px;">
+
+
+ {% for comment in comments %}
+
+<div id="main-container">
+  <div class="wrapper elem" >
+    <div id="sub">
+       <label class="label-right">{{comment[6]}}</label>
+
+       <button value="validate" form="comment{{comment[2]}}" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_{{comment[2]}}" style="display:none" name="validateSomething" type="submit"></button>
+
+      {% if comment[0] == session['id'] %}
+      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_{{comment[2]}}" style="display: true;" name="editSomething" onclick=" document.getElementById( 'validate_{{comment[2]}}' ).setAttribute('style', ''); hide('{{comment[2]}}');"></button>
+
+      <button value="delete" class="btn btn-primary glyphicon glyphicon-trash topbutton" id="delete_{{comment[2]}}" onclick="delete_comment('{{comment[2]}}', '{{post_id}}')" name="deleteSomething"></button>
+
+      
+      
+
+      {% endif %}
+
+     
+
+    </div>
+    
+    <div id="button-group">
+      <form action="/comment/update" method="post" id="comment{{comment[2]}}">
+          <textarea id="text_{{comment[2]}}" name="content" rows="10" form="comment{{comment[2]}}" placeholder="{{comment[4]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+
+        <input  name="comment_id" type="hidden" value="{{comment[2]}}">
+        <input  name="post_id" type="hidden" value="{{post_id}}">
+
+        <div style="float:right;">
+
+          <label class="label-left">{{comment[5]}}</label>
+
+          {% if comment[2] not in session['comment_likes'] %}
+
+          <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes" onclick="like_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+            {% else %}
+
+
+          <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislikes" onclick="dislike_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+            {% endif %}
+
+        </div>
+
+       </form>
+        
+    </div>
+  </div>
+</div>
+
+<br>
+{% endfor %}
+
+</div></div>
+
+{% endif %}
+
 <script type="text/javascript">
   function incrementValue1(id)
   {
@@ -189,69 +195,6 @@ function like_comment(post_id, comment_id){
   }
 
 </script>
-<div id="top">
-  <form  action="/comment/post" method="post" id="comment_post">
-    <textarea id="comment_content" form="comment_post" name="comment_content" rows="10" value="" placeholder="Write your comment in here"></textarea>
-    <input  name="post_id" type="hidden" value="{{post_id}}">
-    <input value="Submit" class="button" id="submitSomething" name="submitSomething" type="submit">
-  </form>
-    <!---->
-
-</div>
-<br>
-
-{% if comments != 0 %}
- {% for comment in comments %}
-
-<div id="main-container" style="width: 70%; padding-left: 16%; padding-right: 14%;">
-  <div class="wrapper" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
-    <div id="sub">
-      <p>{{comment[6]}}</p>
-
-      {% if comment[0] == session['id'] %}
-      <button value="edit" class="button2" id="edit_{{comment[2]}}" style="display: true;" name="editSomething" onclick=" document.getElementById( 'validate_{{comment[2]}}' ).setAttribute('style', ''); hide('{{comment[2]}}');"> edit </button>
-      <button value="delete" class="button2" id="delete_{{comment[2]}}" onclick="delete_comment('{{comment[2]}}', '{{post_id}}')" name="deleteSomething"> delete </button>
-
-      {% endif %}
-
-    </div>
-    
-    <div id="button-group">
-      <form action="/comment/update" method="post" id="comment{{comment[2]}}">
-          <textarea id="text_{{comment[2]}}" name="content" rows="10" form="comment{{comment[2]}}" placeholder="{{comment[4]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
-        <input type="text" id="like_{{comment[2]}}" name="content" value="{{comment[5]}}" disabled />
-        <input  name="comment_id" type="hidden" value="{{comment[2]}}">
-        <input  name="post_id" type="hidden" value="{{post_id}}">
-
-        <button value="validate" class="button2" id="validate_{{comment[2]}}" style="display:none" name="validateSomething" type="submit"> validate </button>
-        
-        {% if comment[2] not in session['comment_likes'] %}
-
-        <input type="button" class="mini-button1" id="likes" onclick="like_comment('{{post_id}}', '{{comment[2]}}');/*this.disabled=true;
-          document.getElementById('dislikes').disabled = true; this.value='Liked!';*/" value="Like"/>
-
-          {% else %}
-
-        <input type="button" class="mini-button1" id="dislikes" onclick="dislike_comment('{{post_id}}', '{{comment[2]}}'); /*this.disabled=true; 
-          document.getElementById('likes').disabled = true; this.value='Disliked!';*/" value="Dislike"/>
-
-          {% endif %}
-
-       </form>
-        
-    </div>
-  </div>
-</div>
-
-<br>
-{% endfor %}
-{% endif %}
-
-<hr>
-<p>Click <a href="/logout">here</a> to logout.</p> <br>
-<p>Click <a href="/blog">here</a> to blog.</p> <br>
-<p>Click <a href="/dashboard">here</a> to dashboard.</p>
-
 
 </body>
 </html>

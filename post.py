@@ -4,10 +4,13 @@ import follow
 from tools import login_required, valid_args, errorDB
 from flask import Flask, flash, session, redirect, request, render_template, url_for
 
+OK = 302
+ERROR = 304
+
 def session_post_likes():
 	args = (str(session['id']),)
 	likes = []
-	result = database.DB.select("SELECT post_id FROM post_like WHERE user_id = %s", args, "all")
+	result = database.DB.select("SELECT post_id FROM post_like WHERE user_id = %s;", args, "all")
 	for row in result:
 		likes.append(row[0])
 	session['post_likes'] = likes
@@ -17,7 +20,7 @@ def session_post_likes():
 @login_required
 def post_like():
 	result = "Error: get"
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		args = (str(session.get('id', None)), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -31,7 +34,7 @@ def post_like():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		session['post_likes'].append(int(args[1]))
 		return redirect(url_for('blog')), status_code
 	return str(result)
@@ -39,7 +42,7 @@ def post_like():
 @login_required
 def post_unlike():
 	result = "Error: get"
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -48,7 +51,7 @@ def post_unlike():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		#print("POST UNLIKE: post_id=", args[1], "ET mes likes=", session['post_likes'])
 		if int(args[1]) in session['post_likes']:
 			#print("MATCH!!!")
@@ -81,7 +84,7 @@ def post_add():
 @login_required
 def post_edit():
 	result = "Error: post"
-	status_code = 200
+	status_code = OK
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('post_id', None))
 		if not valid_args(args):
@@ -90,7 +93,7 @@ def post_edit():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 			return 'ERROR: insertion'
 		return redirect(url_for('blog')), status_code
 	return result
@@ -99,7 +102,7 @@ def post_edit():
 @login_required
 def post_delete():
 	result = "ERROR: get"
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -108,7 +111,7 @@ def post_delete():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 			#return 'ERROR: deletion'
 		return redirect(url_for('blog')), status_code
 	return str(result)
@@ -123,7 +126,7 @@ def post_array():
 	args = (str(session['id']),)
 	sql_follow = "(SELECT user_followed_id FROM public.user_follow WHERE user_follow_id = %s)"
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
-	sql += "WHERE public.posts.user_id = "+ sql_follow +" ORDER BY public.posts.post_time DESC"
+	sql += "WHERE public.posts.user_id IN "+ sql_follow +" ORDER BY public.posts.post_time DESC"
 	result = database.DB.select(sql, args, "all")
 	return result
 
@@ -134,12 +137,12 @@ def posts():
 
 @login_required
 def post_user():
-	status_code = 200
+	status_code = OK
 	args = (str(request.args.get('user_id', None)),)
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id WHERE public.posts.user_id = %s  ORDER BY public.posts.post_time DESC;"
 	#print("ARGS:", args)
 	if not valid_args(args):
-		return redirect(url_for('dashboard'))
+		return redirect(url_for('dashboard')), ERROR
 	result = database.DB.select(sql, args, "all")
 	if result == -1:
 		return errorDB

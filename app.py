@@ -175,7 +175,7 @@ def login():
 def logout():
     session.pop('logged_in', None)
     flash('You are logged out.')
-    return redirect(url_for('welcome'))
+    return redirect(url_for('login'))
 
 @app.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():

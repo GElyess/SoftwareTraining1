@@ -47,6 +47,7 @@ def back_to_search():
 @login_required
 def search():
 	follow.session_followers()
+	
 	scope = request.args.get('by', None)
 	name = request.args.get('name', None)
 

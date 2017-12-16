@@ -24,7 +24,7 @@ def session_followers():
 @login_required
 def follow():
 	result = "Error: get"
-	status_code = 200
+	status_code = 302
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -35,7 +35,7 @@ def follow():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = 304
 		session['post_likes'].append(int(args[1]))
 		session['follow'] += 1
 		return redirect(url_for('back_to_search')), status_code
@@ -57,7 +57,7 @@ def do_unfollow(user_id):
 @login_required
 def unfollow():
 	result = "Error: get"
-	status_code = 200
+	status_code = 302
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -69,7 +69,7 @@ def unfollow():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = 304
 		session['post_likes'].append(int(args[1]))
 		session['follow'] -= 1
 		return redirect(url_for('back_to_search')), status_code

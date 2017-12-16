@@ -4,6 +4,9 @@ from tools import login_required, valid_args, errorDB
 from flask import Flask, flash, session, redirect, request, render_template, url_for
 import pprint
 
+OK = 302
+ERROR = 304
+
 def session_comment_likes():
 	#print(session)
 	args = (session['id'],)
@@ -17,7 +20,7 @@ def session_comment_likes():
 @login_required
 def comment_unlike():
 	result = "Error: get"
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		post_id= request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
@@ -28,14 +31,14 @@ def comment_unlike():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		return redirect(url_for('blog_comment', post_id = post_id)), status_code
 	return str(result)
 
 @login_required
 def comment_like():
 	result = "Error: get"
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		post_id = request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
@@ -47,7 +50,7 @@ def comment_like():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		return redirect(url_for('blog_comment', post_id = post_id)), status_code
 	return str(result)
 
@@ -70,7 +73,7 @@ def delete_comment():
 @login_required
 def post_comment():
 	result = 'Error: post'
-	status_code = 200
+	status_code = OK
 	if request.method == 'POST':
 		args = (session['id'], request.form.get('post_id', None), request.form.get('comment_content', None),)
 		if not valid_args(args):
@@ -81,14 +84,14 @@ def post_comment():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		return redirect(url_for('blog_comment', post_id = args[1])), status_code
 	return str(result)
 
 @login_required
 def update_comment():
 	result = "Error: post"
-	status_code = 200
+	status_code = OK
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('comment_id', None), request.form.get('post_id', None))
 		if not valid_args(args):
@@ -97,14 +100,14 @@ def update_comment():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		return redirect(url_for('blog_comment', post_id = args[3])), status_code
 	return str(result)
 
 @login_required
 def delete_comment():
 	result = 'Error: get'
-	status_code = 200
+	status_code = OK
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('comment_id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -113,7 +116,7 @@ def delete_comment():
 		if result == -1:
 			return errorDB
 		if result != 1:
-			status_code = 404
+			status_code = ERROR
 		return redirect(url_for('blog_comment', post_id = args[2])), status_code
 	return str(result)
 
