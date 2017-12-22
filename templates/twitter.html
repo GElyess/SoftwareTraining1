@@ -31,6 +31,7 @@ h1{
    margin-left: 15%;
 }
 
+
 .label-left{
   float:right;
   margin-top:20px;
@@ -132,7 +133,7 @@ margin-left: 5px;
       <form action="/post/update" method="post" id="edit_post{{post[1]}}">
 
           <textarea id="text_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
-        <button type="button" onclick="goto_comment('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
+        <button type="button" onclick="show_comments('{{post[1]}}')/*goto_comment('{{post[1]}}')*/" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
        
         <input  name="post_id" type="hidden" value="{{post[1]}}">
 
@@ -154,6 +155,11 @@ margin-left: 5px;
         
     </div>
   </div>
+
+  <div id="comments_{{post[1]}}" style="display:none;">
+    <!--<button onclick="show_comments('{{post[1]}}')">Comments</button>-->
+  </div>
+
 </div>
 <br>
 {% endfor %}
@@ -225,21 +231,6 @@ margin-left: 5px;
 
 
 <script type="text/javascript">
-  function incrementValue1(id)
-  {
-      var value = parseInt(document.getElementById('like_'+ id).value, 10);
-      value = isNaN(value) ? 0 : value;
-      value++;
-      document.getElementById('like_'+ id).value = value;
-  }
-  function incrementValue2(id)
-  {
-      var value = parseInt(document.getElementById('like_'+ id).value, 10);
-      value = isNaN(value) ? 0 : value;
-      value--;
-      document.getElementById('like_'+ id).value = value;
-  }
-
   function hide(id) {
         document.getElementById('edit_' + id).style.display = 'none'; 
 
@@ -250,6 +241,18 @@ margin-left: 5px;
         text.value = hint;
     } 
 
+
+    function show(id){
+       document.getElementById('edit_' + id).style.display = 'inline'; 
+
+        var text = document.getElementById('text_' + id);
+        var hint = text.value;
+        text.setAttribute('disabled', true);
+        text.setAttribute('placeholder', hint);
+        //text.placeholder = hint;
+        text.value = null;
+    }
+
   function delete_post(id){
     var location = '/post/delete?post_id=' + id;
     window.location.href = location;
@@ -259,6 +262,35 @@ margin-left: 5px;
       var location = '/blog_comment?post_id=' + id;
       window.location.href = location;
     }
+
+
+  var xhr = null;
+  var elem = null;
+
+  function show_comments(id){
+    elem = document.getElementById('comments_' + id);
+    elem.style.display="inline";
+    elem.className = "comment_section";
+    xhr = new XMLHttpRequest();
+    var params = "?post_id=" + id;
+    xhr.open("GET", "/comment/list" + params, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send(params);
+    xhr.onreadystatechange = processRequest;
+    return true;
+  }
+
+  function processRequest() {                                 
+    if (xhr.readyState == 4){  
+      if (xhr.status == 200){
+        elem.innerHTML = xhr.responseText;
+      }
+      else {
+        alert(xhr.responseText);
+        //elem.innerHTML = 
+      }
+    }
+  }
 
   function like_post(id){
     var location = '/post/like?post_id=' + id;
@@ -277,7 +309,6 @@ margin-left: 5px;
 
    function switch_to_form(id){
     document.getElementById( 'validate_' + id ).setAttribute('style', '');
-    //document.getElementById( 'nonform_text_' + id ).setAttribute('style', 'display:none');
     document.getElementById( 'text_' + id ).setAttribute('style', '');
      document.getElementById( 'nonform_text_' + id ).setAttribute('style', 'display:none');
     hide(id);
@@ -285,6 +316,174 @@ margin-left: 5px;
   }
 
 </script>
+
+<script type="text/javascript">
+  var comment_edit_xhr;
+  var comment_delete_xhr;
+  var comment_like_xhr;
+  var comment_unlike_xhr;
+  var comment_post_xhr;
+
+  var post_to_comment = null;
+  var comment_to_delete = null;
+  var comment_to_edit = null;
+  var comment_to_like = null;
+  var coment_to_unlike = null;
+
+  function postCommentRequest(){
+    if (comment_post_xhr.readyState == 4){  
+      if (comment_post_xhr.status == 200){
+        var newDiv = document.createElement('div');
+        var parent = document.getElementById("parent_post" + post_to_comment)
+        newDiv.innerHTML = comment_post_xhr.responseText;
+        parent.appendChild(newDiv);
+        if (parent.firstChild)
+          parent.insertBefore(newDiv, parent.firstChild);
+        else
+          parent.appendChild(newDiv);
+        post_to_comment=null;
+
+      }
+      else {
+        alert(comment_post_xhr.responseText);
+      }
+    }
+  }
+
+  function post_comment(post_id){
+    var content = document.getElementById('comment_content_post_' + post_id).value;
+
+    if (content == "")
+      return false;
+    post_to_comment = post_id;
+    var params = "comment_content=" + content + "&post_id=" + post_id;
+    comment_post_xhr = new XMLHttpRequest();
+    comment_post_xhr.open("POST", "/comment/post");
+    comment_post_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    comment_post_xhr.send(params);
+    comment_post_xhr.onreadystatechange = postCommentRequest;
+  }
+
+  function editRequest(){
+    if (comment_edit_xhr.readyState == 4){  
+      if (comment_edit_xhr.status == 200){
+        document.getElementById( 'validate_' + comment_to_edit ).setAttribute('style', 'display:none;');
+        show(comment_to_edit);
+
+       comment_to_edit = null;
+      }
+      else {
+        alert(comment_edit_xhr.responseText);
+      }
+    }
+  }
+
+
+  function submit_edit(comment_id, post_id){
+    comment_edit_xhr = new XMLHttpRequest();
+    var content = document.getElementById('text_' + comment_id).value;
+    var params = "comment_id=" + comment_id + "&post_id=" + post_id + "&content=" + content;
+    comment_edit_xhr.open("POST", "/comment/update");
+    comment_edit_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    comment_edit_xhr.send(params);
+    comment_edit_xhr.onreadystatechange = editRequest;
+  }
+
+  function edit_comment(comment_id){
+    if (comment_to_edit != null){
+      document.getElementById( 'validate_' + comment_to_edit ).setAttribute('style', 'display:none;');
+      show(comment_to_edit);
+    }
+    document.getElementById( 'validate_' + comment_id ).setAttribute('style', ''); 
+    hide(comment_id);
+    comment_to_edit = comment_id;
+    /**/
+
+  }
+
+
+  function deleteRequest(){
+    if (comment_delete_xhr.readyState == 4){  
+      if (comment_delete_xhr.status == 200){
+        document.getElementById("comment_div_" + comment_to_delete).remove();
+        //elem.innerHTML = xhr.responseText;
+      }
+      else {
+        alert(comment_delete_xhr.responseText);
+        //elem.innerHTML = 
+      }
+      comment_to_delete = null;
+    }
+  }
+
+  function delete_comment(comment_id, post_id){
+    comment_delete_xhr = new XMLHttpRequest();
+    comment_to_delete = comment_id;
+    var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
+    comment_delete_xhr.open("GET", "/comment/delete" + params, true);
+    comment_delete_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    comment_delete_xhr.send();
+    comment_delete_xhr.onreadystatechange = deleteRequest;
+    return true;
+  }
+
+
+function likeRequest(){
+    if (comment_like_xhr.readyState == 4){  
+      if (comment_like_xhr.status == 200){
+        document.getElementById("likes_comment_" + comment_to_like).style.display = "none";
+        document.getElementById("dislikes_comment_" + comment_to_like).style.display = "inline";
+        var likes = document.getElementById("nb_likes_comment_" + comment_to_like);
+        inc = parseInt(likes.innerHTML) + 1;
+        likes.innerHTML = inc;
+      }
+      else {
+        alert(comment_like_xhr.responseText);
+      }
+      comment_to_like = null;
+    }
+  }
+
+function like_comment(post_id, comment_id){
+   comment_like_xhr = new XMLHttpRequest();
+   comment_to_like = comment_id;
+   var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
+   comment_like_xhr.open("GET", "/comment/like" + params, true);
+   comment_like_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+   comment_like_xhr.send();
+   comment_like_xhr.onreadystatechange = likeRequest;
+  }
+
+  function unlikeRequest(){
+    if (comment_unlike_xhr.readyState == 4){  
+      if (comment_unlike_xhr.status == 200){
+        document.getElementById("likes_comment_" + comment_to_unlike).style.display = "inline";
+        document.getElementById("dislikes_comment_" + comment_to_unlike).style.display = "none";
+        var likes = document.getElementById("nb_likes_comment_" + comment_to_unlike);
+        inc = parseInt(likes.innerHTML) - 1;
+        likes.innerHTML = inc;
+      }
+      else {
+        alert(comment_unlike_xhr.responseText);
+      }
+      comment_to_unlike = null;
+    }
+  }
+
+  function dislike_comment(post_id, comment_id){
+    comment_unlike_xhr = new XMLHttpRequest();
+   comment_to_unlike = comment_id;
+   var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
+   comment_unlike_xhr.open("GET", "/comment/unlike" + params, true);
+   comment_unlike_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+   comment_unlike_xhr.send();
+   comment_unlike_xhr.onreadystatechange = unlikeRequest;
+  }
+
+
+
+</script>
+
 
 </body>
 </html>

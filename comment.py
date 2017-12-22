@@ -1,7 +1,7 @@
 #from database import DB as db
 import database
 from tools import login_required, valid_args, errorDB
-from flask import Flask, flash, session, redirect, request, render_template, url_for
+from flask import Flask, flash, session, redirect, request, render_template, url_for, Response
 import pprint
 
 OK = 302
@@ -25,15 +25,16 @@ def comment_unlike():
 		post_id= request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
 		if not valid_args(args) or post_id == None:
-			return ("Error: arguments")
+			return ("Error: arguments"), 400
 
 		result = database.DB.insert("DELETE FROM public.comment_like WHERE user_id = %s AND comment_id =  %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
-		return redirect(url_for('blog_comment', post_id = post_id)), status_code
-	return str(result)
+			return "comment not found", 404
+		return "comment " + args[1] + " liked", 200
+		#return redirect(url_for('blog_comment', post_id = post_id)), status_code
+	return str(result), 400
 
 @login_required
 def comment_like():
@@ -43,16 +44,17 @@ def comment_like():
 		post_id = request.args.get('post_id', None)
 		args = (session.get('id', None), request.args.get('comment_id', None))
 		if not valid_args(args) or post_id == None:
-			return ("Error: arguments")
+			return ("Error: arguments"), 400
 		if int(args[1]) in session['comment_likes']:
-			return "Error: already liked"
+			return "Error: already liked", 400
 		result = database.DB.insert("INSERT INTO public.comment_like (user_id, comment_id) VALUES (%s, %s);", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
-		return redirect(url_for('blog_comment', post_id = post_id)), status_code
-	return str(result)
+			return "comment not found", 404
+		return "comment " + args[1] + " liked", 200
+		#return redirect(url_for('blog_comment', post_id = post_id)), status_code
+	return str(result), 400
 
 """@login_required
 def delete_comment():
@@ -75,18 +77,27 @@ def post_comment():
 	result = 'Error: post'
 	status_code = OK
 	if request.method == 'POST':
-		args = (session['id'], request.form.get('post_id', None), request.form.get('comment_content', None),)
+		post_id = request.form.get('post_id', None)
+		args = (session['id'], post_id, request.form.get('comment_content', None),)
 		if not valid_args(args):
-			return redirect(url_for('blog_comment', post_id = args[1]))
+			return "invalid arguments", 400
+
 		if args[2] == "":
-			return redirect(url_for('blog_comment', post_id = args[1]))
+			return "no comment content", 400
 		result = database.DB.insert("INSERT INTO public.comments (user_id, post_id, comment_content) VALUES (%s, %s, %s);", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
-		return redirect(url_for('blog_comment', post_id = args[1])), status_code
-	return str(result)
+			return "insertion failed", 404
+
+		args = (post_id,)
+		result = database.DB.select("SELECT public.comments.*, public.user.name FROM public.comments LEFT JOIN public.user ON public.user.id = public.comments.user_id WHERE public.comments.post_id = %s ORDER BY public.comments.created_at DESC", args)
+		if result == -1:
+			return errorDB, 500
+
+		return render_template('single_comment.html', post_id=post_id, comment=result), 200
+		#return redirect(url_for('blog_comment', post_id = args[1])), status_code
+	return str(result), 400
 
 @login_required
 def update_comment():
@@ -94,15 +105,18 @@ def update_comment():
 	status_code = OK
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('comment_id', None), request.form.get('post_id', None))
+		print ("UPDATE COMMENT: ", args)
 		if not valid_args(args):
-			return ("Error: argument")
+			return ("Error: argument"), 400
 		result = database.DB.insert("UPDATE public.comments SET comment_content = %s WHERE user_id = %s AND comment_id = %s AND post_id = %s;", args)
 		if result == -1:
-			return errorDB
+			print ("ERROR COMES FROM HERE")
+			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
-		return redirect(url_for('blog_comment', post_id = args[3])), status_code
-	return str(result)
+			return "comment not found.", 404
+		return ("comment " + args[2] + " updated"), 200
+		#return redirect(url_for('blog_comment', post_id = args[3])), status_code
+	return str(result), 400
 
 @login_required
 def delete_comment():
@@ -111,13 +125,15 @@ def delete_comment():
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('comment_id', None), request.args.get('post_id', None))
 		if not valid_args(args):
-			return ("Error: argument")
+			return ("Error: argument"), 400
 		result = database.DB.insert("DELETE FROM public.comments WHERE user_id = %s AND comment_id = %s AND post_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
-		return redirect(url_for('blog_comment', post_id = args[2])), status_code
+			status_code = 404
+			return "comment not found", status_code
+		return "comment deleted", 200
+		#return redirect(url_for('blog_comment', post_id = args[2])), status_code
 	return str(result)
 
 def comment_array(post_id):
@@ -129,3 +145,15 @@ def comment_array(post_id):
 def comments():
 	result = database.DB.select("SELECT public.comments.*, public.user.name FROM public.comments LEFT JOIN public.user ON public.user.id = public.comments.user_id", (), "all")
 	return result
+
+def comment_list():
+	post_id = request.args.get('post_id', None)
+	args = (str(post_id),)
+	if post_id == None:
+		return Response('error argument', status=400, mimetype='application/json');
+	result = database.DB.select("SELECT public.comments.*, public.user.name FROM public.comments LEFT JOIN public.user ON public.user.id = public.comments.user_id WHERE public.comments.post_id = %s ORDER BY public.comments.created_at DESC", args, "all")
+	#result = comment_array(str(post_id))
+	if result == -1:
+		return Response(errorDB, status=500, mimetype='application/json')
+	#return "erreur avec render_template", 200
+	return render_template('comment_list.html', comments = result, post_id = post_id), 200

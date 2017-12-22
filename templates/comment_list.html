@@ -1,0 +1,113 @@
+<div id="top" class="addpost">
+  <form  action="/comment/post" method="post" id="comment_post">
+    <textarea id="comment_content_post_{{post_id}}" form="comment_post" name="comment_content" rows="10" value="" placeholder="Write your comment in here"></textarea>
+    <input  name="post_id" type="hidden" value="{{post_id}}"> 
+  </form>
+  <button onclick="post_comment('{{post_id}}')" style="width: 100%;" class = "btn btn-primary btn-lg glyphicon glyphicon-envelope"></button>
+</div>
+<br>
+
+{% if comments != 0 %}
+
+<div id="main-container" class="span7 center" style="width: 70%; margin-left: 15%; ">
+<div class = "jumbotron" id="parent_post{{post_id}}" style="border-radius: 5px;">
+
+
+ {% for comment in comments %}
+
+<div id="comment_div_{{comment[2]}}">
+  <div class="wrapper elem" >
+    <div id="sub">
+       <label class="label-right">{{comment[6]}}</label>
+
+       <button value="validate" onclick="submit_edit('{{comment[2]}}', '{{post_id}}');" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_{{comment[2]}}" style="display:none" name="validateSomething" type="submit"></button>
+
+      {% if comment[0] == session['id'] %}
+      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_{{comment[2]}}" style="display: true;" name="editSomething" onclick="edit_comment('{{comment[2]}}');"></button>
+
+      <button value="delete" class="btn btn-primary glyphicon glyphicon-trash topbutton" id="delete_{{comment[2]}}" onclick="delete_comment('{{comment[2]}}', '{{post_id}}')" name="deleteSomething"></button>
+
+      
+      
+
+      {% endif %}
+
+     
+
+    </div>
+    
+    <div id="button-group">
+      <form action="/comment/update" method="post" id="comment{{comment[2]}}">
+          <textarea id="text_{{comment[2]}}" name="content" rows="10" form="comment{{comment[2]}}" placeholder="{{comment[4]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
+
+        <input  name="comment_id" type="hidden" value="{{comment[2]}}">
+        <input  name="post_id" type="hidden" value="{{post_id}}">
+
+        <div style="float:right;">
+
+          <label class="label-left" id="nb_likes_comment_{{comment[2]}}">{{comment[5]}}</label>
+
+          {% if comment[2] not in session['comment_likes'] %}
+
+          <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes_comment_{{comment[2]}}" onclick="like_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+           <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" style="display: none;" id="dislikes_comment_{{comment[2]}}" onclick="dislike_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+            {% else %}
+
+
+           <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" style="display:none" id="likes_comment_{{comment[2]}}" onclick="like_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+          <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislikes_comment_{{comment[2]}}" onclick="dislike_comment('{{post_id}}', '{{comment[2]}}');"/>
+
+            {% endif %}
+
+        </div>
+
+       </form>
+        
+    </div>
+  </div>
+</div>
+
+<br>
+{% endfor %}
+
+</div></div>
+
+{% endif %}
+
+<!--<script type="text/javascript">
+  var comment_xhr;
+
+  function hide(id) {
+        document.getElementById('edit_' + id).style.display = 'none'; 
+
+        var text = document.getElementById('text_' + id);
+        var hint = text.getAttribute('placeholder')
+        text.removeAttribute('disabled'); 
+        text.removeAttribute('placeholder')
+        text.value = hint;
+    } 
+
+  function delete_comment(comment_id, post_id){
+    var location = '/comment/delete?comment_id=' + comment_id + '&post_id=' + post_id;
+    window.location.href = location;
+    /*
+      request to delete the comment
+    */
+    //delete the associated div
+  }
+
+function like_comment(post_id, comment_id){
+
+    var location = '/comment/like?post_id=' + post_id+ '&comment_id=' + comment_id;
+    window.location.href = location;
+  }
+
+  function dislike_comment(post_id, comment_id){
+     var location = '/comment/unlike?post_id=' + post_id + '&comment_id=' + comment_id;
+    window.location.href = location;
+  }
+
+</script>-->

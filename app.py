@@ -30,6 +30,7 @@ app.add_url_rule('/comment/delete', 'delete_comment', comment.delete_comment, me
 app.add_url_rule('/comment/post', 'post_comment', comment.post_comment, methods=['POST'])
 app.add_url_rule('/comment/update', 'update_comment', comment.update_comment, methods=['POST'])
 app.add_url_rule('/comment/get', 'comments', comment.comments)
+app.add_url_rule('/comment/list', 'comment_list', comment.comment_list, methods=['GET'])
 
 #app.add_url_rule('/post_like_count', 'post_like_count', post.post_like_count, methods=['GET'])
 app.add_url_rule('/post/like', 'post_like', post.post_like, methods=['GET'])
