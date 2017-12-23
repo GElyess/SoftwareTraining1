@@ -73,6 +73,7 @@ def dashboard():
 def blog():
 	status_code = 200
 	post.session_post_likes()
+	comment.session_comment_likes()
 	result = post.post_array()
 	#print('result=', result)
 	args = (session['id'],)
@@ -116,16 +117,18 @@ def register():
 		#cur = conn.cursor()
 		fields = (request.form.get('username', None), request.form.get('email', None), request.form.get('password', None))
 		if not valid_args(fields):
-			return redirect(url_for('register'))
+			return "error arguments", 400
+			#return redirect(url_for('register'))
 
 		if not matches(request.form['email'], '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'):
-			return "PATTERN ERROR EMAIL"
+			return "PATTERN ERROR EMAIL", 400
 		
 		args = (request.form['username'], request.form['email'], MD5(request.form['password']))
 		res = database.DB.insert("INSERT INTO public.user (name, email, password) VALUES (%s, %s, %s);", args)
 		if res == -1:
-			return errorDB
-		return redirect(url_for('login'))
+			return errorDB, 500
+		return "account created", 200
+		#return redirect(url_for('login'))
 		
 	return render_template('register.html')  # render a template
    
@@ -137,8 +140,8 @@ def login():
 	if request.method == 'POST':
 		args = (request.form.get('username', None), request.form.get('password', None))
 		if not valid_args(args):
-			print ("invalid args")
-			return redirect(url_for('home'))
+			return ("invalid args"), 400
+			#return redirect(url_for('home'))
 		args = (request.form['username'], MD5(request.form['password']))
 		#print(args)
 		result = database.DB.select("SELECT * FROM public.user where name = %s and password = %s;", args)
@@ -147,7 +150,8 @@ def login():
 		#print("RESULT=", result)
 		if not result:
 			error = 'Invalid Credentials. Please try again.'
-			return render_template('login.html', error=error), 404
+			return error, 404
+			#return render_template('login.html', error=error), 404
 		else:
 			session['logged_in'] = True
 			session['id'] = result[0]
@@ -168,7 +172,8 @@ def login():
 			NAME = request.form['username']
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
-			return redirect(url_for('dashboard'))
+			return "logged in", 200
+			#return redirect(url_for('dashboard'))
 	return render_template('login.html', error=error), 200
 
 @app.route('/logout')

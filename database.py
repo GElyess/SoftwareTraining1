@@ -15,8 +15,8 @@ class _Db(object):
 	def select(self, sql_string, args = None, quantity = "one"):
 		#try:
 		self.cursor = self.connexion.cursor()
-		print (sql_string)
-		print(args)
+		#print (sql_string)
+		#print(args)
 		self.cursor.execute(sql_string, args)
 		result = 0
 		if (quantity == "one"):

@@ -11,10 +11,12 @@ def session_post_likes():
 	args = (str(session['id']),)
 	likes = []
 	result = database.DB.select("SELECT post_id FROM post_like WHERE user_id = %s;", args, "all")
+	if result == -1:
+		return
 	for row in result:
 		likes.append(row[0])
 	session['post_likes'] = likes
-	#print ("POST LIKES",likes)
+	#print ("POST LIKES: ",likes)
 
 
 @login_required

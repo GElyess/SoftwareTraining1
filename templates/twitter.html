@@ -133,7 +133,7 @@ margin-left: 5px;
       <form action="/post/update" method="post" id="edit_post{{post[1]}}">
 
           <textarea id="text_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
-        <button type="button" onclick="show_comments('{{post[1]}}')/*goto_comment('{{post[1]}}')*/" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
+        <button type="button" onclick="show_comments('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
        
         <input  name="post_id" type="hidden" value="{{post[1]}}">
 
@@ -157,7 +157,6 @@ margin-left: 5px;
   </div>
 
   <div id="comments_{{post[1]}}" style="display:none;">
-    <!--<button onclick="show_comments('{{post[1]}}')">Comments</button>-->
   </div>
 
 </div>
@@ -200,12 +199,12 @@ margin-left: 5px;
         <!--<div id="contents">-->
           <textarea id="text_{{f[1]}}" name="content" rows="10" form="edit_post{{f[1]}}" placeholder="{{f[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
 
-         <button type="button" onclick="goto_comment('{{f[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
+         <button type="button" onclick="show_comments('{{f[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
         <input  name="post_id" type="hidden" value="{{f[1]}}">
 
         <!--<button value="validate" class="btn btn-primary glyphicon glyphicon-comment" id="validate_{{f[1]}}" style="display:none" name="validateSomething" type="submit"> </button>-->
 
-        {% if followed[1] not in session['post_likes'] %}
+        {% if f[1] not in session['post_likes'] %}
 
             <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes" onclick="like_post('{{f[1]}}');"/></button>
         
@@ -220,6 +219,8 @@ margin-left: 5px;
         
     </div>
   </div>
+
+   <div id="comments_{{f[1]}}" style="display:none;">
 
 <br>
 {% endfor %}

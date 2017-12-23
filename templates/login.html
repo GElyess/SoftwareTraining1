@@ -62,12 +62,13 @@ button {
       <h1>Please login</h1>
       <br>
       <form action="/login" method="post">
-        <input type="text" placeholder="Username" name="username" value="{{
+        <input type="text" placeholder="Username" id="username" name="username" value="{{
           request.form.username }}">
-         <input type="password" placeholder="Password" name="password" value="{{
+         <input type="password" placeholder="Password" id="pwd" name="password" value="{{
           request.form.password }}">
-        <input class="myButton" type="submit" id="myButton" style="box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset; background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 100%) rgb(189, 219, 250); border-radius: 6px; border: 1px solid rgb(132, 187, 243); display: inline-block; cursor: pointer; color: rgb(255, 255, 255); font-family: Arial; font-size: 15px; font-weight: bold; padding: 6px 24px; text-decoration: none; text-shadow: rgb(82, 142, 204) 0px 1px 0px;" value="Login">
+        
       </form>
+      <input class="myButton" type="button" onclick="login();" id="myButton" style="box-shadow: rgb(220, 236, 251) 0px 1px 0px 0px inset; background: linear-gradient(rgb(189, 219, 250) 5%, rgb(128, 181, 234) 100%) rgb(189, 219, 250); border-radius: 6px; border: 1px solid rgb(132, 187, 243); display: inline-block; cursor: pointer; color: rgb(255, 255, 255); font-family: Arial; font-size: 15px; font-weight: bold; padding: 6px 24px; text-decoration: none; text-shadow: rgb(82, 142, 204) 0px 1px 0px;" value="Login">
       <h4>click <a href="/register"> here </a> to register</h4>
       {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}</p>
@@ -76,5 +77,43 @@ button {
         {{ message }}
       {% endfor %}
     </div>
+
+
+<script type="text/javascript">
+    var xhr = null;
+
+     function loginRequest(){
+        if (xhr.readyState == 4){
+            if (xhr.status == 200){
+                var location = "/dashboard";
+                window.location.href = location;
+            }
+            else{
+                alert(xhr.responseText);
+            }
+            xhr = null;
+        }
+    }
+
+    function login(){
+      var name =  document.getElementById("username");
+      var pwd =  document.getElementById("pwd");
+      if (name.value == ""){
+        name.focus();
+        return false;
+      }
+      else if (pwd.value == ""){
+        pwd.focus();
+        return false;
+      }
+      var params = "username=" + name.value + "&password=" + pwd.value;
+      xhr = new  XMLHttpRequest();
+      xhr.open("POST", "/login");
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.send(params);
+      xhr.onreadystatechange = loginRequest;
+    }
+</script>
+
   </body>
 </html>
