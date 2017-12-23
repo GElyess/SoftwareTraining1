@@ -147,6 +147,15 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.post(1,'content test66666666666666666')
         assert 'content test66666666666666666' in str(rv.data)
         #database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test66666666666666666')
+    # def test_wrong_post(self):
+    #     self.login('johnny','asd12345')
+    #     rv = self.post(1,None)
+    #     status = rv.status_code
+    #     print('777777777777::::',status)
+    #     assert status == 200
+    #     #database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test66666666666666666')
+
+
 
     def comment(self, post_id, content):
         return self.app.post('/comment/post', data=dict(
@@ -197,14 +206,19 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         #print('#######################', status)
         assert status == 200
-        # url = '/comment/unlike?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
-        # rv = self.app.get(url)
-        # status = rv.status_code
-        # print('^^^^&^^^^^^^^^^^^^^^^^', rv.data)
-        # print('#######################', status)
-        # #assert status == 200
 
+    def test_like_post(self):
+        self.login('johnny', 'asd12345')
+        response = self.post(1, 'content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
+        post_id = post_id[0]
 
+        url = '/post/like?post_id=%s' % (str(post_id))
+        rv = self.app.get(url)
+
+        status = rv.status_code
+        #print('@@@@@@@@@@@@@@@@2', status)
+        assert status == 302
 
     # test insert a new user in DB
     def test_DB(self):
