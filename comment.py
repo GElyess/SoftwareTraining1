@@ -34,7 +34,8 @@ def comment_unlike():
 			return errorDB, 500
 		if result != 1:
 			return "comment not found", 404
-		session['comment_likes'].remove(args[1])
+		if args[1] in session['comment_likes']:
+			session['comment_likes'].remove(args[1])
 		return "comment " + args[1] + " liked", 200
 		#return redirect(url_for('blog_comment', post_id = post_id)), status_code
 	return str(result), 400

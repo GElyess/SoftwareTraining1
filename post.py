@@ -65,22 +65,24 @@ def post_unlike():
 @login_required
 def post_add():
 	result = "error post"
-	status_code = 301
 	if request.method == 'POST':
 		args = (session.get('id', None), request.form.get('content', None),)
 		if not valid_args(args):
-			return "ERROR: invalid argument"
+			return "ERROR: invalid argument", 400
 		if args[1] == "":
-			return redirect(url_for('blog'))
+			return "empty post", 400
+			#return redirect(url_for('blog'))
 		result = database.DB.insert("INSERT INTO public.posts (user_id, post_content) VALUES (%s, %s);", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result == 0:
-			status_code = 304
-			return "ERROR: insertion"
-		#print (type(session['posts_number']))
+			return "post not found", 404
 		session['posts_number'] += 1
-		return redirect(url_for('blog'), code=status_code)
+		result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", ())
+		if result == -1:
+			return errorDB, 500
+		return render_template("single_post.html", post = result), 200
+		#return redirect(url_for('blog'), code=status_code)
 	return str(result)
 
 @login_required
@@ -90,13 +92,13 @@ def post_edit():
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('post_id', None))
 		if not valid_args(args):
-			return 'ERROR: arguments'
+			return 'ERROR: arguments', 400
 		result = database.DB.insert("UPDATE public.posts SET post_content = %s WHERE user_id = %s AND post_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
 			status_code = ERROR
-			return 'ERROR: insertion'
+			return 'ERROR: edition', 404
 		return redirect(url_for('blog')), status_code
 	return result
 #I change this function

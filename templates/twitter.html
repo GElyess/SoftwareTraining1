@@ -85,9 +85,10 @@ margin-left: 5px;
 
 <div id="top" class="addpost" >
   <form  action="/post/post" method="post" id="post_blog">
-    <textarea id="content" form="post_blog" name="content" rows="10" value="" placeholder="Write your post in here"></textarea>
-    <button type = "submit" style="width: 100%;" class = "btn btn-primary btn-lg glyphicon glyphicon-envelope"></button>
+    <textarea id="post_add_content" form="post_blog" name="content" rows="10" value="" placeholder="Write your post in here"></textarea>
+    
   </form>
+  <button type = "button" onclick="addpost();" style="width: 100%;" class = "btn btn-primary btn-lg glyphicon glyphicon-envelope"></button>
 
 </div>
 <br>
@@ -97,7 +98,7 @@ margin-left: 5px;
 <h1>My posts:</h1>
 
 <div id="main-container" class="span7 center" style="width: 70%; margin-left: 15%; ">
-<div class = "jumbotron" style="border-radius: 5px;">
+<div class = "jumbotron" id="parent_user_posts" style="border-radius: 5px;">
 
 
  {% for post in posts %}
@@ -232,6 +233,44 @@ margin-left: 5px;
 
 
 <script type="text/javascript">
+
+  var xhr_addpost = null;
+
+  function postAddRequest(){
+    if (xhr_addpost.readyState == 4){
+      if (xhr_addpost.status == 200){
+         //add the div
+         var newDiv = document.createElement('div');
+        var parent = document.getElementById("parent_user_posts")
+        newDiv.innerHTML = xhr_addpost.responseText;
+        parent.appendChild(newDiv);
+        if (parent.firstChild)
+          parent.insertBefore(newDiv, parent.firstChild);
+        else
+          parent.appendChild(newDiv);
+            }
+            else{
+                alert(xhr.responseText);
+            }
+            xhr_addpost = null;
+        }
+  }
+
+  function addpost(){
+    var text = document.getElementById("post_add_content");
+    if (text.value == "content"){
+      text.focus();
+      return false;
+    }
+    xhr_addpost = new XMLHttpRequest();
+    var params = "content=" + text.value;
+    xhr_addpost.open("POST", "/post/post");
+    xhr_addpost.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr_addpost.send(params);
+    xhr_addpost.onreadystatechange = postAddRequest;
+    return true;
+  }
+
   function hide(id) {
         document.getElementById('edit_' + id).style.display = 'none'; 
 
