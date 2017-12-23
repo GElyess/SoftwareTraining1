@@ -14,7 +14,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.db_fd, app.app.config['DATABASE'] = tempfile.mkstemp()
         app.app.config['TESTING'] = True
         self.app = app.app.test_client()
-        database.NewConn("dbname='weibo' user='postgres' password='ss5122195' host='localhost' port='5432'")
+        database.NewConn("dbname='project_training' user='postgres' password='root' host='localhost' port='5432'")
 
         #DB.select("SELECT post_id from public.posts WHERE post_id = 1;")
 
