@@ -181,10 +181,10 @@ class FlaskrTestCase(unittest.TestCase):
     def test_like_comment(self):
         self.login('johnny', 'asd12345')
         response = self.post(1, 'content test999')
-        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
         post_id = post_id[0]
         self.comment(str(post_id), '6666666')
-        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666'")
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
         comment_id=comment_id[0]
         #print('idididididiiddi', comment_id[0])
         #print('POST ID:', post_id[0])
@@ -197,12 +197,14 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         #print('#######################', status)
         assert status == 200
-        # url = '/comment/unlike?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
-        # rv = self.app.get(url)
-        # status = rv.status_code
-        # print('^^^^&^^^^^^^^^^^^^^^^^', rv.data)
-        # print('#######################', status)
-        # #assert status == 200
+        print ("POST_ID:", post_id)
+        print ("COMMENT_ID:", comment_id)
+        url = '/comment/unlike?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        print('^^^^&^^^^^^^^^^^^^^^^^', rv.data)
+    # print('#######################', status)
+        assert status == 200
 
 
 
