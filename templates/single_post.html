@@ -1,14 +1,14 @@
-<div id="main-container">
+<div id="main_container_post{{post[1]}}">
   <div class="wrapper elem" >
     <div id="sub">
 
         <label class="label-right">{{post[6]}}</label>
 
       {% if post[0] == session['id'] %}
-      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_{{post[1]}}" style="display: true;" name="editSomething" onclick="document.getElementById( 'validate_{{post[1]}}' ).setAttribute('style', ''); hide('{{post[1]}}');/* switch_to_form({{post[1]}})*/"></button>
+      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_post_{{post[1]}}" style="display: true;" name="editSomething" onclick="edit_post('{{post[1]}}');/* switch_to_form({{post[1]}})*/"></button>
      
 
-        <button value="validate" form="edit_post{{post[1]}}" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_{{post[1]}}" style="display:none" name="validateSomething" type="submit">
+        <button value="validate" id="validate_post{{post[1]}}" onclick="submit_post_edit('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_post{{post[1]}}" style="display:none" name="validateSomething" type="submit">
         </button>
 
       <button value="delete" class="btn btn-primary glyphicon glyphicon-trash topbutton" id="delete_{{post[1]}}" onclick="delete_post('{{post[1]}}')" name="deleteSomething"></button>
@@ -28,7 +28,7 @@
     <div id="button-group">
       <form action="/post/update" method="post" id="edit_post{{post[1]}}">
 
-          <textarea id="text_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
+          <textarea id="text_post_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
         <button type="button" onclick="show_comments('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
        
         <input  name="post_id" type="hidden" value="{{post[1]}}">
@@ -38,14 +38,18 @@
 
         {% if post[1] not in session['post_likes'] %}
 
-        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes" onclick="like_post('{{post[1]}}');"/></button>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{post[1]}}" onclick="like_post('{{post[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{post[1]}}" style="display:none;" onclick="dislike_post('{{post[1]}}');"/></button>
 
           {% else %}
           
-        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislikes" onclick="dislike_post('{{post[1]}}');"/></button>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{post[1]}}" style="display:none;" onclick="like_post('{{post[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{post[1]}}" onclick="dislike_post('{{post[1]}}');"/></button>
           {% endif %}
 
-           <label class="label-left">{{post[4]}}</label>
+           <label id="nb_likes_post_{{post[1]}}" class="label-left">{{post[4]}}</label>
 
        </form>
         
@@ -54,6 +58,6 @@
 
   <div id="comments_{{post[1]}}" style="display:none;">
   </div>
+<br>
 
 </div>
-<br>

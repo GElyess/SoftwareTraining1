@@ -73,6 +73,7 @@ float: right;
     window.location.href = location;
   }
 </script>
+<!--<script src="static/followScript.js"></script>-->
 
 <br><br><br>
 
@@ -88,19 +89,11 @@ float: right;
 
      <p>{{user[1]}}</p>
 
-     <!--<h4>Email: {{user[2]}}</h4>
 
-     <h4>Gender: {{user[4]}}</h4>
-
-     <h4>Phone number: {{user[5]}}</h4>
-
-      <h4>Region: {{user[7]}}</h4>-->
 
     </div>
     
     <div id="button-group">
-         <!-- <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>-->
-        
 
         <p>posts: {{user[9]}}</p>
         <p>followers: {{user[11]}}</p>
@@ -144,18 +137,10 @@ float: right;
 
      <p>{{user[1]}}</p>
 
-     <!--<h4>Email: {{user[2]}}</h4>
-
-     <h4>Gender: {{user[4]}}</h4>
-
-     <h4>Phone number: {{user[5]}}</h4>
-
-      <h4>Region: {{user[7]}}</h4>-->
 
     </div>
     
     <div id="button-group">
-         <!-- <textarea id="text_{{user[1]}}" name="content" rows="5" placeholder="Description: {{user[8]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>-->
         
 
         <p>posts: {{user[9]}}</p>
@@ -165,11 +150,13 @@ float: right;
 
         <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
 
+        <button class="btn btn-primary" id="dislikes" style="display:none;" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
          <button class="btn btn-primary" id="likes" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
 
           {% else %}
           
         <button class="btn btn-primary" id="dislikes" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
+        <button class="btn btn-primary" id="likes" style="display:none;" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
           {% endif %}
         
     </div>

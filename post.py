@@ -26,20 +26,22 @@ def post_like():
 	if request.method == 'GET':
 		args = (str(session.get('id', None)), request.args.get('post_id', None))
 		if not valid_args(args):
-			return 'Error: argument'
+			return 'Error: argument', 400
 		#print ("POST ID=", args[1])
 		#print(session['post_likes'])
 
 		if int(args[1]) in session['post_likes']:
-			return "Error: already liked"
+			return "Error: already liked", 400
 		result = database.DB.insert("INSERT INTO public.post_like (user_id, post_id) VALUES (%s, %s);", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
 			status_code = ERROR
-		session['post_likes'].append(int(args[1]))
-		return redirect(url_for('blog')), status_code
-	return str(result)
+		session_post_likes()
+		#session['post_likes'].append(int(args[1]))
+		return 'post liked', 200
+		#return redirect(url_for('blog')), status_code
+	return str(result), 405
 
 @login_required
 def post_unlike():
@@ -48,19 +50,24 @@ def post_unlike():
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
-			return 'Error: argument'
+			return 'Error: argument', 400
 		result = database.DB.insert("DELETE FROM public.post_like WHERE user_id = %s AND post_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
 			status_code = ERROR
+		session_post_likes()
 		#print("POST UNLIKE: post_id=", args[1], "ET mes likes=", session['post_likes'])
-		if int(args[1]) in session['post_likes']:
+		'''if int(args[1]) in session['post_likes']:
 			#print("MATCH!!!")
 			session['post_likes'].remove(int(args[1]))
-			#print("RETIRE: ", session['post_likes'])
-		return redirect(url_for('blog')), status_code
-	return str(result)
+		if str(args[1]) in session['post_likes']:
+			#print("MATCH!!!")
+			session['post_likes'].remove(str(args[1]))
+			#print("RETIRE: ", session['post_likes'])'''
+		return 'post unliked', 200
+		#return redirect(url_for('blog')), status_code
+	return str(result), 405
 
 @login_required
 def post_add():
@@ -110,29 +117,37 @@ def post_delete():
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('post_id', None))
 		if not valid_args(args):
-			return '0'
+			return 'invalid arguments', 400
 		result = database.DB.insert("DELETE FROM public.posts WHERE user_id = %s AND post_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
+			return 'post not found', 404
 			status_code = ERROR
 			#return 'ERROR: deletion'
-		return redirect(url_for('blog')), status_code
-	return str(result)
+		return "post deleted", 200
+		#return redirect(url_for('blog')), status_code
+	return str(result), 405
 
 def post_array():
 	result = database.DB.select("SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id ORDER BY public.posts.post_id DESC", (), "all")
 	follow.session_followers()
-	id_string = "("
-	'''for follower in session['user_follow']:
-		id_string = id_string + str(follower) + ","
-	id_string = id_string + str(session['id']) + ")"'''
+	"""if session['user_follow']:
+		print("SESSION FOLLOWERS:", session['user_follow'])
+		id_string = "("
+		for follower in session['user_follow']:
+			id_string = id_string + str(follower) + ","
+		id_string = id_string + str(session['id']) + ")"""
 	args = (str(session['id']),)
 	sql_follow = "(SELECT user_followed_id FROM public.user_follow WHERE user_follow_id = %s)"
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
+	#sql += "WHERE public.posts.user_id IN "+ id_string +" ORDER BY public.posts.post_time DESC"
 	sql += "WHERE public.posts.user_id IN "+ sql_follow +" ORDER BY public.posts.post_time DESC"
+	print("SQL: ", sql)
 	result = database.DB.select(sql, args, "all")
+
 	return result
+	#return 0
 
 @login_required
 def posts():

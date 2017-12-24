@@ -75,6 +75,9 @@ def blog():
 	post.session_post_likes()
 	comment.session_comment_likes()
 	result = post.post_array()
+	#print("RESULT: ", result)
+	for r in result:
+		print("r: ", r)
 	#print('result=', result)
 	args = (session['id'],)
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "

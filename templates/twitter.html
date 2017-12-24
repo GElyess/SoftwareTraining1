@@ -5,8 +5,8 @@
   <!--<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>-->
-  <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
-
+ <!-- <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">-->
+ <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body >
@@ -93,7 +93,7 @@ margin-left: 5px;
 </div>
 <br>
 
-{% if posts != 0 %}
+{% if posts != 0 and posts %}
 
 <h1>My posts:</h1>
 
@@ -103,17 +103,17 @@ margin-left: 5px;
 
  {% for post in posts %}
 
-<div id="main-container">
+<div id="main_container_post{{post[1]}}">
   <div class="wrapper elem" >
     <div id="sub">
 
         <label class="label-right">{{post[6]}}</label>
 
       {% if post[0] == session['id'] %}
-      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_{{post[1]}}" style="display: true;" name="editSomething" onclick="document.getElementById( 'validate_{{post[1]}}' ).setAttribute('style', ''); hide('{{post[1]}}');/* switch_to_form({{post[1]}})*/"></button>
+      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_post_{{post[1]}}" style="display: true;" name="editSomething" onclick="edit_post('{{post[1]}}');/* switch_to_form({{post[1]}})*/"></button>
      
 
-        <button value="validate" form="edit_post{{post[1]}}" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_{{post[1]}}" style="display:none" name="validateSomething" type="submit">
+        <button value="validate" onclick="submit_post_edit('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_post{{post[1]}}" style="display:none" name="validateSomething" type="button">
         </button>
 
       <button value="delete" class="btn btn-primary glyphicon glyphicon-trash topbutton" id="delete_{{post[1]}}" onclick="delete_post('{{post[1]}}')" name="deleteSomething"></button>
@@ -133,7 +133,7 @@ margin-left: 5px;
     <div id="button-group">
       <form action="/post/update" method="post" id="edit_post{{post[1]}}">
 
-          <textarea id="text_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
+          <textarea id="text_post_{{post[1]}}" name="content" rows="10" form="edit_post{{post[1]}}" placeholder="{{post[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251); "></textarea>
         <button type="button" onclick="show_comments('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
        
         <input  name="post_id" type="hidden" value="{{post[1]}}">
@@ -143,14 +143,18 @@ margin-left: 5px;
 
         {% if post[1] not in session['post_likes'] %}
 
-        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes" onclick="like_post('{{post[1]}}');"/></button>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{post[1]}}" onclick="like_post('{{post[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{post[1]}}" style="display:none;" onclick="dislike_post('{{post[1]}}');"/></button>
 
           {% else %}
           
-        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislikes" onclick="dislike_post('{{post[1]}}');"/></button>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{post[1]}}" style="display:none;" onclick="like_post('{{post[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{post[1]}}" onclick="dislike_post('{{post[1]}}');"/></button>
           {% endif %}
 
-           <label class="label-left">{{post[4]}}</label>
+           <label id="nb_likes_post_{{post[1]}}" class="label-left">{{post[4]}}</label>
 
        </form>
         
@@ -159,9 +163,9 @@ margin-left: 5px;
 
   <div id="comments_{{post[1]}}" style="display:none;">
   </div>
-
-</div>
 <br>
+</div>
+
 {% endfor %}
 </div>
 </div>
@@ -177,7 +181,7 @@ margin-left: 5px;
 
  {% for f in followed %}
 
-  <div class="wrapper elem" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
+  <div  id="post_followed_{{f[0]}}" class="wrapper elem" style="border-radius: 5px; border: 2px solid rgb(189, 219, 250); padding-right: 10px; padding-left: 5px">
     <div id="sub">
       <label class="label-right">{{f[6]}}</label>
 
@@ -196,6 +200,7 @@ margin-left: 5px;
     </div>
     
     <div id="button-group">
+
       <form action="/post/update" method="post" id="edit_post{{f[1]}}">
         <!--<div id="contents">-->
           <textarea id="text_{{f[1]}}" name="content" rows="10" form="edit_post{{f[1]}}" placeholder="{{f[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
@@ -207,321 +212,39 @@ margin-left: 5px;
 
         {% if f[1] not in session['post_likes'] %}
 
-            <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="likes" onclick="like_post('{{f[1]}}');"/></button>
-        
+             <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{f[1]}}" onclick="like_post('{{f[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{f[1]}}" style="display:none;" onclick="dislike_post('{{f[1]}}');"/></button>
+
           {% else %}
-        
-         <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislikes" onclick="dislike_post('{{f[1]}}');"/></button>
+          
+        <button type="button" class="btn btn-primary glyphicon glyphicon-plus-sign topbutton" id="like_post_{{f[1]}}" style="display:none;" onclick="like_post('{{f[1]}}');"/></button>
+
+        <button type="button" class="btn btn-primary glyphicon glyphicon-minus-sign topbutton" id="dislike_post_{{f[1]}}" onclick="dislike_post('{{f[1]}}');"/></button>
           {% endif %}
 
-          <label class="label-left">{{f[4]}}</label>
+          <label  id="nb_likes_post_{{f[1]}}" class="label-left">{{f[4]}}</label>
 
        </form>
         
     </div>
   </div>
 
-   <div id="comments_{{f[1]}}" style="display:none;">
+   <div id="comments_{{f[1]}}" style="display:none;"></div>
 
 <br>
 {% endfor %}
 </div>
-
 </div>
 
 {% endif %}
 
 
-<script type="text/javascript">
+<script src="static/postScript.js"></script>
+<script src="static/commentScript.js"></script>
+<script src="static/followScript.js"></script>
 
-  var xhr_addpost = null;
-
-  function postAddRequest(){
-    if (xhr_addpost.readyState == 4){
-      if (xhr_addpost.status == 200){
-         //add the div
-         var newDiv = document.createElement('div');
-        var parent = document.getElementById("parent_user_posts")
-        newDiv.innerHTML = xhr_addpost.responseText;
-        parent.appendChild(newDiv);
-        if (parent.firstChild)
-          parent.insertBefore(newDiv, parent.firstChild);
-        else
-          parent.appendChild(newDiv);
-            }
-            else{
-                alert(xhr.responseText);
-            }
-            xhr_addpost = null;
-        }
-  }
-
-  function addpost(){
-    var text = document.getElementById("post_add_content");
-    if (text.value == "content"){
-      text.focus();
-      return false;
-    }
-    xhr_addpost = new XMLHttpRequest();
-    var params = "content=" + text.value;
-    xhr_addpost.open("POST", "/post/post");
-    xhr_addpost.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr_addpost.send(params);
-    xhr_addpost.onreadystatechange = postAddRequest;
-    return true;
-  }
-
-  function hide(id) {
-        document.getElementById('edit_' + id).style.display = 'none'; 
-
-        var text = document.getElementById('text_' + id);
-        var hint = text.getAttribute('placeholder')
-        text.removeAttribute('disabled'); 
-        text.removeAttribute('placeholder')
-        text.value = hint;
-    } 
-
-
-    function show(id){
-       document.getElementById('edit_' + id).style.display = 'inline'; 
-
-        var text = document.getElementById('text_' + id);
-        var hint = text.value;
-        text.setAttribute('disabled', true);
-        text.setAttribute('placeholder', hint);
-        //text.placeholder = hint;
-        text.value = null;
-    }
-
-  function delete_post(id){
-    var location = '/post/delete?post_id=' + id;
-    window.location.href = location;
-  }
-
-  function goto_comment(id){
-      var location = '/blog_comment?post_id=' + id;
-      window.location.href = location;
-    }
-
-
-  var xhr = null;
-  var elem = null;
-
-  function show_comments(id){
-    elem = document.getElementById('comments_' + id);
-    elem.style.display="inline";
-    elem.className = "comment_section";
-    xhr = new XMLHttpRequest();
-    var params = "?post_id=" + id;
-    xhr.open("GET", "/comment/list" + params, true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send(params);
-    xhr.onreadystatechange = processRequest;
-    return true;
-  }
-
-  function processRequest() {                                 
-    if (xhr.readyState == 4){  
-      if (xhr.status == 200){
-        elem.innerHTML = xhr.responseText;
-      }
-      else {
-        alert(xhr.responseText);
-        //elem.innerHTML = 
-      }
-    }
-  }
-
-  function like_post(id){
-    var location = '/post/like?post_id=' + id;
-    window.location.href = location;
-  }
-
-  function dislike_post(id){
-     var location = '/post/unlike?post_id=' + id;
-    window.location.href = location;
-  }
-
-  function stop_following(id){
-    var location = '/unfollow/blog?user_id=' + id
-     window.location.href = location;
-  }
-
-   function switch_to_form(id){
-    document.getElementById( 'validate_' + id ).setAttribute('style', '');
-    document.getElementById( 'text_' + id ).setAttribute('style', '');
-     document.getElementById( 'nonform_text_' + id ).setAttribute('style', 'display:none');
-    hide(id);
-
-  }
-
-</script>
-
-<script type="text/javascript">
-  var comment_edit_xhr;
-  var comment_delete_xhr;
-  var comment_like_xhr;
-  var comment_unlike_xhr;
-  var comment_post_xhr;
-
-  var post_to_comment = null;
-  var comment_to_delete = null;
-  var comment_to_edit = null;
-  var comment_to_like = null;
-  var coment_to_unlike = null;
-
-  function postCommentRequest(){
-    if (comment_post_xhr.readyState == 4){  
-      if (comment_post_xhr.status == 200){
-        var newDiv = document.createElement('div');
-        var parent = document.getElementById("parent_post" + post_to_comment)
-        newDiv.innerHTML = comment_post_xhr.responseText;
-        parent.appendChild(newDiv);
-        if (parent.firstChild)
-          parent.insertBefore(newDiv, parent.firstChild);
-        else
-          parent.appendChild(newDiv);
-        post_to_comment=null;
-
-      }
-      else {
-        alert(comment_post_xhr.responseText);
-      }
-    }
-  }
-
-  function post_comment(post_id){
-    var content = document.getElementById('comment_content_post_' + post_id).value;
-
-    if (content == "")
-      return false;
-    post_to_comment = post_id;
-    var params = "comment_content=" + content + "&post_id=" + post_id;
-    comment_post_xhr = new XMLHttpRequest();
-    comment_post_xhr.open("POST", "/comment/post");
-    comment_post_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    comment_post_xhr.send(params);
-    comment_post_xhr.onreadystatechange = postCommentRequest;
-  }
-
-  function editRequest(){
-    if (comment_edit_xhr.readyState == 4){  
-      if (comment_edit_xhr.status == 200){
-        document.getElementById( 'validate_' + comment_to_edit ).setAttribute('style', 'display:none;');
-        show(comment_to_edit);
-
-       comment_to_edit = null;
-      }
-      else {
-        alert(comment_edit_xhr.responseText);
-      }
-    }
-  }
-
-
-  function submit_edit(comment_id, post_id){
-    comment_edit_xhr = new XMLHttpRequest();
-    var content = document.getElementById('text_' + comment_id).value;
-    var params = "comment_id=" + comment_id + "&post_id=" + post_id + "&content=" + content;
-    comment_edit_xhr.open("POST", "/comment/update");
-    comment_edit_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    comment_edit_xhr.send(params);
-    comment_edit_xhr.onreadystatechange = editRequest;
-  }
-
-  function edit_comment(comment_id){
-    if (comment_to_edit != null){
-      document.getElementById( 'validate_' + comment_to_edit ).setAttribute('style', 'display:none;');
-      show(comment_to_edit);
-    }
-    document.getElementById( 'validate_' + comment_id ).setAttribute('style', ''); 
-    hide(comment_id);
-    comment_to_edit = comment_id;
-    /**/
-
-  }
-
-
-  function deleteRequest(){
-    if (comment_delete_xhr.readyState == 4){  
-      if (comment_delete_xhr.status == 200){
-        document.getElementById("comment_div_" + comment_to_delete).remove();
-        //elem.innerHTML = xhr.responseText;
-      }
-      else {
-        alert(comment_delete_xhr.responseText);
-        //elem.innerHTML = 
-      }
-      comment_to_delete = null;
-    }
-  }
-
-  function delete_comment(comment_id, post_id){
-    comment_delete_xhr = new XMLHttpRequest();
-    comment_to_delete = comment_id;
-    var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
-    comment_delete_xhr.open("GET", "/comment/delete" + params, true);
-    comment_delete_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    comment_delete_xhr.send();
-    comment_delete_xhr.onreadystatechange = deleteRequest;
-    return true;
-  }
-
-
-function likeRequest(){
-    if (comment_like_xhr.readyState == 4){  
-      if (comment_like_xhr.status == 200){
-        document.getElementById("likes_comment_" + comment_to_like).style.display = "none";
-        document.getElementById("dislikes_comment_" + comment_to_like).style.display = "inline";
-        var likes = document.getElementById("nb_likes_comment_" + comment_to_like);
-        inc = parseInt(likes.innerHTML) + 1;
-        likes.innerHTML = inc;
-      }
-      else {
-        alert(comment_like_xhr.responseText);
-      }
-      comment_to_like = null;
-    }
-  }
-
-function like_comment(post_id, comment_id){
-   comment_like_xhr = new XMLHttpRequest();
-   comment_to_like = comment_id;
-   var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
-   comment_like_xhr.open("GET", "/comment/like" + params, true);
-   comment_like_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-   comment_like_xhr.send();
-   comment_like_xhr.onreadystatechange = likeRequest;
-  }
-
-  function unlikeRequest(){
-    if (comment_unlike_xhr.readyState == 4){  
-      if (comment_unlike_xhr.status == 200){
-        document.getElementById("likes_comment_" + comment_to_unlike).style.display = "inline";
-        document.getElementById("dislikes_comment_" + comment_to_unlike).style.display = "none";
-        var likes = document.getElementById("nb_likes_comment_" + comment_to_unlike);
-        inc = parseInt(likes.innerHTML) - 1;
-        likes.innerHTML = inc;
-      }
-      else {
-        alert(comment_unlike_xhr.responseText);
-      }
-      comment_to_unlike = null;
-    }
-  }
-
-  function dislike_comment(post_id, comment_id){
-    comment_unlike_xhr = new XMLHttpRequest();
-   comment_to_unlike = comment_id;
-   var params = "?comment_id=" + comment_id + "&post_id=" + post_id;
-   comment_unlike_xhr.open("GET", "/comment/unlike" + params, true);
-   comment_unlike_xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-   comment_unlike_xhr.send();
-   comment_unlike_xhr.onreadystatechange = unlikeRequest;
-  }
-
-
-
+  
 </script>
 
 
