@@ -59,21 +59,14 @@ p, #editSomething, #deleteSomething {
 float: right;
 }
 
+#main-container_followed{
+  width: 70%;
+  margin-left: 15%; 
+  /*display:inline;*/
+}
 
 </style>  
-<script type="text/javascript">
 
-  function follow(id){
-    var location = '/follow?user_id=' + id;
-    window.location.href = location;
-  }
-
-  function unfollow(id){
-     var location = '/unfollow?user_id=' + id;
-    window.location.href = location;
-  }
-</script>
-<!--<script src="static/followScript.js"></script>-->
 
 <br><br><br>
 
@@ -84,7 +77,7 @@ float: right;
 <div class = "jumbotron" style="border-radius: 5px;">
  {% for user in users %}
 
-  <div class="wrapper elem">
+  <div class="wrapper elem" id="found_user{{user[0]}}">
     <div id="sub">
 
      <p>{{user[1]}}</p>
@@ -102,13 +95,15 @@ float: right;
 
         <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
 
-        <!--<input type="button" class="mini-button1" id="likes" onclick="follow('{{user[0]}}');" value="Follow"/>-->
-         <button class="btn btn-primary" id="dislikes" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+         <button class="btn btn-primary" style="float:right;" id="follow_user{{user[0]}}" onclick="search_follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+
+         <button class="btn btn-primary" style="float:right; display: none;" id="unfollow_user{{user[0]}}" onclick="search_unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span> </button>
 
           {% else %}
           
-        <!--<input type="button" class="mini-button1" id="dislikes" onclick="unfollow('{{user[0]}}');" value="Stop following"/>-->
-         <button class="btn btn-primary" id="dislikes" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span> </button>
+          <button class="btn btn-primary" style="float:right; display: none;" id="follow_user{{user[0]}}" onclick="search_follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+
+         <button class="btn btn-primary" style="float:right;" id="unfollow_user{{user[0]}}" onclick="search_unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span> </button>
           {% endif %}
         
     </div>
@@ -121,53 +116,57 @@ float: right;
 
 <!-- LIST FOR PEOPLE FOLLOWED -->
 
-{% if followed != 0 and followed %}
 <h1>People I follow:</h1>
 
-<div id="main-container" class="span7 center" style="width: 70%; margin-left: 15%; ">
-<div class = "jumbotron" style="border-radius: 5px;">
+<div id="main-container_followed" class="span7 center">
+<div class = "jumbotron"  id="user_followed_container" style="border-radius: 5px;">
+  {% if followed != 0 and followed %}
+
 
 {% for user in followed %}
 
 
 
-  
-  <div class="wrapper elem" >
-    <div id="sub">
+ <div id="followed_user{{user[0]}}"> 
+<div class="wrapper elem">
+  <div id="sub">
 
-     <p>{{user[1]}}</p>
+   <p>{{user[1]}}</p>
 
 
-    </div>
-    
-    <div id="button-group">
-        
-
-        <p>posts: {{user[9]}}</p>
-        <p>followers: {{user[11]}}</p>
-
-        {% if user[0] not in session['user_follow'] %}
-
-        <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
-
-        <button class="btn btn-primary" id="dislikes" style="display:none;" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
-         <button class="btn btn-primary" id="likes" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
-
-          {% else %}
-          
-        <button class="btn btn-primary" id="dislikes" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
-        <button class="btn btn-primary" id="likes" style="display:none;" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
-          {% endif %}
-        
-    </div>
   </div>
+  
+  <div id="button-group">
+      
+
+      <p>posts: {{user[9]}}</p>
+      <p>followers: {{user[11]}}</p>
+
+      {% if user[0] not in session['user_follow'] %}
+
+      <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
+
+      <button class="btn btn-primary" id="dislikes" style="display:none;" onclick="followed_unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
+       <button class="btn btn-primary" id="likes" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+
+        {% else %}
+        
+      <button class="btn btn-primary" id="dislikes" onclick="followed_unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
+      <button class="btn btn-primary" id="likes" style="display:none;" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+        {% endif %}
+      
+  </div>
+</div>
 <br>
+</div>
 
 {% endfor %}
-</div>
-</div>
 {% endif %}
+
+</div>
+</div>
 <hr>
 
 </body>
+  <script  src="static/followScript.js" type="text/javascript"></script>
 </html>

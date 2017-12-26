@@ -75,13 +75,16 @@ def blog():
 	post.session_post_likes()
 	comment.session_comment_likes()
 	result = post.post_array()
-	#print("RESULT: ", result)
-	for r in result:
-		print("r: ", r)
-	#print('result=', result)
-	args = (session['id'],)
+	
+
+	args = (session['id'], session['id']);
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
-	sql += "WHERE public.posts.user_id = %s ORDER BY public.posts.post_time DESC;"
+	sql += "WHERE public.posts.user_id = %s OR public.posts.user_id IN (SELECT user_followed_id FROM public.user_follow WHERE user_follow_id = %s) "
+	sql += "ORDER BY public.posts.post_time DESC;"
+
+	"""args = (session['id'],)
+	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
+	sql += "WHERE public.posts.user_id = %s ORDER BY public.posts.post_time DESC;"""
 	myposts =  database.DB.select(sql, args, "all")
 	if myposts == -1 or result == -1:
 		return errorDB
@@ -188,7 +191,6 @@ def logout():
 
 @app.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
-	#print("SESSION=", session)
 	if request.method == 'POST':
 		fields = (request.form.get('name', None), request.form.get('email', None), request.form.get('password', None), request.form.get('region', None), request.form.get('gender', None))
 		if not valid_args(fields):
@@ -196,8 +198,6 @@ def update_profile():
 
 		if not matches(request.form['email'], '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'):
 			return redirect(url_for('update_profile'))
-		#if not matches(request.form['password'],"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$") or len(request.form['password']) < 8:
-		#	return "PARRERN ERROR PASSWORD"
 		if not request.form['gender'] in ('Male', 'Female'):
 			return redirect(url_for('update_profile'))
 

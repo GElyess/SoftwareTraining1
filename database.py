@@ -13,20 +13,18 @@ class _Db(object):
 			self.connected = False
 
 	def select(self, sql_string, args = None, quantity = "one"):
-		#try:
-		self.cursor = self.connexion.cursor()
-		#print (sql_string)
-		#print(args)
-		self.cursor.execute(sql_string, args)
-		result = 0
-		if (quantity == "one"):
-			result = self.cursor.fetchone()
-		else:
-			result = self.cursor.fetchall()
-			self.cursor.close()
-		return (result)
-		#except:
-		#	return -1
+		try:
+			self.cursor = self.connexion.cursor()
+			self.cursor.execute(sql_string, args)
+			result = 0
+			if (quantity == "one"):
+				result = self.cursor.fetchone()
+			else:
+				result = self.cursor.fetchall()
+				self.cursor.close()
+			return (result)
+		except:
+			return -1
 
 	def insert(self, sql_string, args = None):
 		try:

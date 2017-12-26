@@ -24,7 +24,6 @@ def session_followers():
 @login_required
 def follow():
 	result = "Error: get"
-	status_code = 302
 	if request.method == 'GET':
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
@@ -36,11 +35,19 @@ def follow():
 		if result == -1:
 			return errorDB, 500
 		if result != 1:
-			status_code = 304
+			return "user not found", 404
+
+		if session_followers() == -1:
+			return errorDB, 500
 		session['post_likes'].append(int(args[1]))
 		session['follow'] += 1
-		#return "user followed", 200
-		return redirect(url_for('back_to_search')), status_code
+		args = (args[1],)
+		result = database.DB.select("SELECT public.user.* FROM public.user WHERE public.user.id = %s;", args)
+		if result == -1:
+			return errorDB, 500
+		return render_template("single_user_follow.html", user = result), 200
+
+		#return redirect(url_for('back_to_search')), status_code
 	return str(result), 405
 
 def do_unfollow(user_id):
@@ -59,8 +66,9 @@ def do_unfollow(user_id):
 @login_required
 def unfollow():
 	result = "Error: get"
-	status_code = 302
 	if request.method == 'GET':
+		#user = ()
+
 		args = (session['id'], int(request.args.get('user_id', None)))
 		if not valid_args(args):
 			return "invalid arguments", 400
@@ -71,13 +79,16 @@ def unfollow():
 			#return redirect(url_for('search'))
 		result = database.DB.insert("DELETE FROM public.user_follow WHERE user_follow_id = %s AND user_followed_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
-			status_code = 304
+			return "user not found", 404
+		if session_followers() == -1:
+			return errorDB, 500
 		session['post_likes'].append(int(args[1]))
 		session['follow'] -= 1
 		#return "user unfollowed", 200
-		return redirect(url_for('back_to_search')), status_code
+		return "user unfollowed", 200
+		#return redirect(url_for('back_to_search')), status_code
 	return str(result), 405
 
 @login_required

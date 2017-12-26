@@ -103,14 +103,14 @@ margin-left: 5px;
 
  {% for post in posts %}
 
-<div id="main_container_post{{post[1]}}">
+<div id="main_container_post{{post[1]}}" name="post_user{{post[0]}}">
   <div class="wrapper elem" >
     <div id="sub">
 
         <label class="label-right">{{post[6]}}</label>
 
       {% if post[0] == session['id'] %}
-      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_post_{{post[1]}}" style="display: true;" name="editSomething" onclick="edit_post('{{post[1]}}');/* switch_to_form({{post[1]}})*/"></button>
+      <button value="edit" class="btn btn-primary glyphicon glyphicon-pencil topbutton" id="edit_post_{{post[1]}}" style="display: true;" name="editSomething" onclick="edit_post('{{post[1]}}');"></button>
      
 
         <button value="validate" onclick="submit_post_edit('{{post[1]}}')" class="btn btn-primary glyphicon glyphicon-ok topbutton" id="validate_post{{post[1]}}" style="display:none" name="validateSomething" type="button">
@@ -120,8 +120,7 @@ margin-left: 5px;
 
       {% else %}
 
-
-      <input type="button" class="mini-button1" id="unfollow" onclick="stop_following('{{post[0]}}');" value="Stop following" />      
+      <button type="button" class="btn btn-primary glyphicon glyphicon-star topbutton" id="likes" onclick="stop_following('{{post[0]}}');"/></button>
 
 
       {% endif %}
@@ -172,6 +171,7 @@ margin-left: 5px;
 
 {% endif %}
 
+<!--
 {% if followed  %}
 
 <h1>My followed posts:</h1>
@@ -192,7 +192,6 @@ margin-left: 5px;
       
       {% else %}
 
-      <!--<input type="button" class="mini-button1" id="unfollow" onclick="stop_following('{{f[0]}}');" value="Stop following" />  -->  
        <button type="button" class="btn btn-primary glyphicon glyphicon-star topbutton" id="likes" onclick="stop_following('{{f[0]}}');"/></button>        
 
       {% endif %}
@@ -202,13 +201,10 @@ margin-left: 5px;
     <div id="button-group">
 
       <form action="/post/update" method="post" id="edit_post{{f[1]}}">
-        <!--<div id="contents">-->
           <textarea id="text_{{f[1]}}" name="content" rows="10" form="edit_post{{f[1]}}" placeholder="{{f[2]}}" disabled="disabled" style="background-color:rgb(220, 236, 251);"></textarea>
 
          <button type="button" onclick="show_comments('{{f[1]}}')" class="btn btn-primary glyphicon glyphicon-comment topbutton"></button>
         <input  name="post_id" type="hidden" value="{{f[1]}}">
-
-        <!--<button value="validate" class="btn btn-primary glyphicon glyphicon-comment" id="validate_{{f[1]}}" style="display:none" name="validateSomething" type="submit"> </button>-->
 
         {% if f[1] not in session['post_likes'] %}
 
@@ -237,7 +233,7 @@ margin-left: 5px;
 </div>
 </div>
 
-{% endif %}
+{% endif %}-->
 
 
 <script src="static/postScript.js"></script>

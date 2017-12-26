@@ -1,0 +1,32 @@
+<div id="followed_user{{user[0]}}">
+  <div class="wrapper elem">
+      <div id="sub">
+
+       <p>{{user[1]}}</p>
+
+
+      </div>
+      
+      <div id="button-group">
+          
+
+          <p>posts: {{user[9]}}</p>
+          <p>followers: {{user[11]}}</p>
+
+          {% if user[0] not in session['user_follow'] %}
+
+          <!-- FOR FOLLOWING / STOP FOLLOWING USERS -->
+
+          <button class="btn btn-primary" id="dislikes" style="display:none;" onclick="unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
+           <button class="btn btn-primary" id="likes" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+
+            {% else %}
+            
+          <button class="btn btn-primary" id="dislikes" onclick="followed_unfollow('{{user[0]}}');"><span class="glyphicon glyphicon-star"></span></button>
+          <button class="btn btn-primary" id="likes" style="display:none;" onclick="follow('{{user[0]}}');"><span class="glyphicon glyphicon-star-empty"></span> </button>
+            {% endif %}
+          
+      </div>
+    </div>
+  <br>
+</div>
