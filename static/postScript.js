@@ -22,6 +22,9 @@ var xhr_addpost = null;
         else
           parent.appendChild(newDiv);
             }
+        else if (xhr_addpost.status == 400){
+          window.location = "/logout"
+        }
             else{
                 alert(xhr.responseText);
             }
@@ -45,7 +48,7 @@ var xhr_addpost = null;
   }
 
   function hide(id) {
-    alert("hiding");
+    //alert("hiding");
         document.getElementById('edit_' + id).style.display = 'none'; 
 
         var text = document.getElementById('text_' + id);
@@ -78,6 +81,9 @@ var xhr_addpost = null;
           container.remove();
         }
       }
+      else if (delete_post_xhr.status == 400){
+          window.location = "/logout"
+        }
       else {
         alert(delete_post_xhr.responseText);
         //elem.innerHTML = 
@@ -126,6 +132,9 @@ var xhr_addpost = null;
          //document.getElementById("comment_div_" + comment_to_delete).remove();
         elem.innerHTML = xhr.responseText;
       }
+      else if (xhr.status == 400){
+          window.location = "/logout"
+        }
       else {
         alert(xhr.responseText);
         //elem.innerHTML = 
@@ -148,6 +157,9 @@ var xhr_addpost = null;
         var value = parseInt(nbLikes.innerHTML) + 1;
         nbLikes.innerHTML = value;
       }
+      else if (like_xhr.status == 400){
+          window.location = "/logout"
+        }
       else {
         alert(like_xhr.responseText);
       }
@@ -178,6 +190,9 @@ var xhr_addpost = null;
         var value = parseInt(nbLikes.innerHTML) - 1;
         nbLikes.innerHTML = value;
       }
+      else if (dislike_xhr.status == 400){
+          window.location = "/logout"
+        }
       else {
         alert(dislike_xhr.responseText);
       }

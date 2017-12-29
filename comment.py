@@ -104,7 +104,7 @@ def post_comment():
 
 		return render_template('single_comment.html', post_id=post_id, comment=result), 200
 		#return redirect(url_for('blog_comment', post_id = args[1])), status_code
-	return str(result), 400
+	return str(result), 405
 
 @login_required
 def update_comment():

@@ -27,9 +27,6 @@ def post_like():
 		args = (str(session.get('id', None)), request.args.get('post_id', None))
 		if not valid_args(args):
 			return 'Error: argument', 400
-		#print ("POST ID=", args[1])
-		#print(session['post_likes'])
-
 		if int(args[1]) in session['post_likes']:
 			return "Error: already liked", 400
 		result = database.DB.insert("INSERT INTO public.post_like (user_id, post_id) VALUES (%s, %s);", args)
@@ -38,9 +35,7 @@ def post_like():
 		if result != 1:
 			status_code = ERROR
 		session_post_likes()
-		#session['post_likes'].append(int(args[1]))
 		return 'post liked', 200
-		#return redirect(url_for('blog')), status_code
 	return str(result), 405
 
 @login_required
@@ -55,7 +50,7 @@ def post_unlike():
 		if result == -1:
 			return errorDB, 500
 		if result != 1:
-			status_code = ERROR
+			return "post not found", 404
 		session_post_likes()
 		#print("POST UNLIKE: post_id=", args[1], "ET mes likes=", session['post_likes'])
 		'''if int(args[1]) in session['post_likes']:
@@ -106,7 +101,8 @@ def post_edit():
 		if result != 1:
 			status_code = ERROR
 			return 'ERROR: edition', 404
-		return redirect(url_for('blog')), status_code
+		return "post edited", 200
+		#return redirect(url_for('blog')), status_code
 	return result
 #I change this function
 #--johnny--

@@ -14,7 +14,11 @@ function unfollowRequest(){
       	while ((post = document.getElementsByName("post_user" + user_to_unfollow)) != null){
       		post[0].remove();
       	}
+      	
       }
+      else if (follow_xhr.status == 400){
+      		window.location = "/logout"
+      	}
       else {
         alert(follow_xhr.responseText);
       }
@@ -40,6 +44,9 @@ function followRequest(){
 		document.getElementById("user_followed_container").innerHTML += follow_xhr.responseText;
 	  	//add the right div
 		}
+		else if (follow_xhr.status == 400){
+      		window.location = "/logout"
+      	}
 	  	else {
 		    alert(follow_xhr.status + " : " + follow_xhr.responseText);
 		  }
@@ -53,6 +60,9 @@ function searchUnfollowRequest(){
 	  	document.getElementById("follow_user" + user_to_unfollow).style = "float:right; display:inline;";
 	  	document.getElementById("followed_user" + user_to_unfollow).remove();
 		}
+		else if (unfollow_xhr.status == 400){
+      		window.location = "/logout"
+      	}
 	  	else {
 		    alert(unfollow_xhr.status + " : " + unfollow_xhr.responseText);
 		  }
@@ -62,13 +72,16 @@ function searchUnfollowRequest(){
 	function followedUnfollowRequest(){
 	if (unfollow_xhr.readyState == 4){  
 	  if (unfollow_xhr.status == 200){
-	  	document.getElementById("followed_user" + user_to_unfollow).remove();
-	  	var v = document.getElementById("unfollow_user" + user_to_unfollow);
-	  	if (v != null){
-	  		v.style = "display:none;"
-	  		document.getElementById("follow_user"+ user_to_unfollow).style = "float:right;display:inline";
-	  	}
+	  		document.getElementById("followed_user" + user_to_unfollow).remove();
+	  		var v = document.getElementById("unfollow_user" + user_to_unfollow);
+		  	if (v != null){
+		  		v.style = "display:none;"
+		  		document.getElementById("follow_user"+ user_to_unfollow).style = "float:right;display:inline";
+		  	}
 		}
+		else if (unfollow_xhr.status == 400){
+      		window.location = "/logout"
+      	}
 	  	else {
 		    alert(unfollow_xhr.status + " : " + unfollow_xhr.responseText);
 		  }

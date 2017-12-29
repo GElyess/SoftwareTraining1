@@ -124,6 +124,8 @@ def register():
 		fields = (request.form.get('username', None), request.form.get('email', None), request.form.get('password', None))
 		if not valid_args(fields):
 			return "error arguments", 400
+		if len(fields[2]) < 8:
+			return "password too short", 400
 			#return redirect(url_for('register'))
 
 		if not matches(request.form['email'], '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'):
@@ -182,12 +184,13 @@ def login():
 			#return redirect(url_for('dashboard'))
 	return render_template('login.html', error=error), 200
 
-@app.route('/logout')
+@app.route('/logout',  methods=['GET'])
 @login_required
 def logout():
-    session.pop('logged_in', None)
-    flash('You are logged out.')
-    return redirect(url_for('login'))
+	session.pop("logged_in", None)
+	session.clear()
+	flash('You are logged out.')
+	return redirect(url_for('login'))
 
 @app.route('/update_profile', methods=['GET', 'POST'])
 def update_profile():
