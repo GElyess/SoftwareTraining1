@@ -2,13 +2,11 @@
 import database
 from tools import login_required, valid_args, errorDB
 from flask import Flask, flash, session, redirect, request, render_template, url_for, Response
-import pprint
 
 OK = 302
 ERROR = 304
 
 def session_comment_likes():
-	#print(session)
 	args = (session['id'],)
 	likes = []
 	result = database.DB.select("SELECT comment_id FROM comment_like WHERE user_id = %s", args, "all")
@@ -39,7 +37,7 @@ def comment_unlike():
 			session['comment_likes'].remove(args[1])"""
 		return "comment " + args[1] + " liked", 200
 		#return redirect(url_for('blog_comment', post_id = post_id)), status_code
-	return str(result), 400
+	return str(result), 405
 
 @login_required
 def comment_like():
@@ -112,12 +110,12 @@ def update_comment():
 	status_code = OK
 	if request.method == 'POST':
 		args = (request.form.get('content', None), session.get('id', None), request.form.get('comment_id', None), request.form.get('post_id', None))
-		print ("UPDATE COMMENT: ", args)
 		if not valid_args(args):
 			return ("Error: argument"), 400
+		if args[0] == "":
+			return "Empty content", 400
 		result = database.DB.insert("UPDATE public.comments SET comment_content = %s WHERE user_id = %s AND comment_id = %s AND post_id = %s;", args)
 		if result == -1:
-			print ("ERROR COMES FROM HERE")
 			return errorDB, 500
 		if result != 1:
 			return "comment not found.", 404

@@ -181,7 +181,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.login('johnny','asd12345')
         rv = self.post('content test66666666666666666')
         assert rv.status_code == 200
-        #database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test66666666666666666')
     
     def test_post_wrong_argument(self):
         self.login('johnny','asd12345')
@@ -339,7 +338,6 @@ class FlaskrTestCase(unittest.TestCase):
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
         assert status == 404
 
-    
     def test_post_unlike_twice(self):
         self.login('johnny', 'asd12345')
         response = self.post('content test999')
@@ -365,17 +363,15 @@ class FlaskrTestCase(unittest.TestCase):
     #test comment
     def test_comment(self):
         self.login('johnny', 'asd12345')
-        response = self.post( 'content test999')
+        self.post( 'content test999')
         post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
-        url = 'http://127.0.0.1:5000/blog_comment?post_id=%s'%post_id[0]
-        url2 = 'http://127.0.0.1:5000/comment/post'
         rv = self.comment(post_id[0],'6666666')
         status = rv.status_code
         assert  status == 200
 
     def test_wrong_comment(self):
         self.login('johnny', 'asd12345')
-        response = self.post( 'content test999')
+        self.post( 'content test999')
         post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
         rv = self.comment(post_id[0],None)
         status = rv.status_code
@@ -383,7 +379,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_empty_comment(self):
         self.login('johnny', 'asd12345')
-        response = self.post( 'content test999')
+        self.post( 'content test999')
         post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
         rv = self.comment(post_id[0], "")
         status = rv.status_code
@@ -391,35 +387,131 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_comment_wrong_post_id(self):
         self.login('johnny', 'asd12345')
-        response = self.post( 'content test999')
+        self.post( 'content test999')
         rv = self.comment(99999999,"None")
         status = rv.status_code
         assert  status == 500
 
-    def test_like_comment(self):
+    #TEST EDIT COMMENT
+    def test_edit_comment(self):
         self.login('johnny', 'asd12345')
-        response = self.post('content test999')
+        content = 'johnny_test_post_for_comment_to_edit'
+        self.post(content)
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = %s;", (content,))
+        comment_content = '6666666'
+        self.comment(post_id[0], comment_content)
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE post_id=%s AND comment_content=%s;", (post_id, comment_content))
+        rv = self.app.post("/comment/update", data=dict(
+            content=content,
+            comment_id=comment_id[0],
+            post_id=post_id[0]
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
+        assert  status == 200
+
+    def test_edit_comment_wrong_argument(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_for_comment_to_edit'
+        self.post(content)
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = %s;", (content,))
+        comment_content = '6666666'
+        self.comment(post_id[0], comment_content)
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE post_id=%s AND comment_content=%s;", (post_id, comment_content))
+        rv = self.app.post("/comment/update", data=dict(
+            comment_id=comment_id[0],
+            post_id=post_id[0]
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
+        assert  status == 400
+
+    def test_edit_comment_empty_content(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_for_comment_to_edit'
+        self.post(content)
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = %s;", (content,))
+        comment_content = '6666666'
+        self.comment(post_id[0], comment_content)
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE post_id=%s AND comment_content=%s;", (post_id, comment_content))
+        rv = self.app.post("/comment/update", data=dict(
+            content="",
+            comment_id=comment_id[0],
+            post_id=post_id[0]
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
+        assert  status == 400
+
+    def test_edit_comment_wrong_post_id(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_for_comment_to_edit'
+        self.post(content)
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = %s;", (content,))
+        comment_content = '6666666'
+        self.comment(post_id[0], comment_content)
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE post_id=%s AND comment_content=%s;", (post_id, comment_content))
+        rv = self.app.post("/comment/update", data=dict(
+            content=comment_content,
+            comment_id=comment_id[0],
+            post_id=-1
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
+        assert  status == 404
+
+    #TEST DELETE COMMENT
+    def test_delete_comment(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
         post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
         post_id = post_id[0]
         self.comment(str(post_id), '6666666')
         comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
         comment_id=comment_id[0]
-        #print('idididididiiddi', comment_id[0])
-        #print('POST ID:', post_id[0])
+        url = "/comment/delete?comment_id=%s&post_id=%s" % (comment_id, post_id)
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id,))
+        assert status == 200
+
+     #TEST DELETE COMMENT
+    def test_delete_comment_wrong_argument(self):
+        self.login('johnny', 'asd12345')
+        url = "/comment/delete"
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 400
+
+    def test_delete_comment_wrong_id(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=-1
+        url = "/comment/delete?comment_id=%s&post_id=%s" % (comment_id, post_id)
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id,))
+        assert status == 404
+
+    #TEST LIKE COMMENT
+    def test_like_comment(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
         url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
         rv=self.app.get(url)
         status = rv.status_code
         assert status == 200
-        #print ("POST_ID:", post_id)
-        #print ("COMMENT_ID:", comment_id)
-        url = '/comment/unlike?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
-        rv = self.app.get(url)
-        status = rv.status_code
-        #print('^^^^&^^^^^^^^^^^^^^^^^', rv.data)
-        # print('#######################', status)
-        assert status == 200
-
-    def test_like_comment_fail_argument(self):
+        
+    def test_like_comment_wrong_argument(self):
         self.login('johnny', 'asd12345')
         response = self.post('content test999')
         post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
@@ -427,8 +519,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.comment(str(post_id), '6666666')
         comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
         comment_id=comment_id[0]
-        #print('idididididiiddi', comment_id[0])
-        #print('POST ID:', post_id[0])
         url = '/comment/like?comment_id=%s'%(str(comment_id),)
         rv=self.app.get(url)
         status = rv.status_code
@@ -442,8 +532,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.comment(str(post_id), '6666666')
         comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
         comment_id=comment_id[0]
-        #print('idididididiiddi', comment_id[0])
-        #print('POST ID:', post_id[0])
         url = '/comment/like?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
         rv=self.app.get(url)
         rv=self.app.get(url)
@@ -459,14 +547,64 @@ class FlaskrTestCase(unittest.TestCase):
         comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
         comment_id=comment_id[0]
         database.DB.update("DELETE FROM pubic.comments WHERE comment_id = %s AND post_id + %s;", (comment_id, post_id,))
-        #print('idididididiiddi', comment_id[0])
-        #print('POST ID:', post_id[0])
-        url = '/comment/like?comment_id=%s&post_id=%s' % (comment_id, str(post_id))
+        url = '/comment/like?comment_id=%s&post_id=%s' % (comment_id, post_id)
         rv=self.app.get(url)
         status = rv.status_code
         assert status == 500
 
+    #TEST COMMENT UNLIKE
+    def test_unlike_comment(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
+        self.app.get(url)
+        url = "/comment/unlike?comment_id=%s&post_id=%s" % (str(comment_id), str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 200
+
+    def test_unlike_comment_wrong_arguments(self):
+        self.login('johnny', 'asd12345')
+        url = "/comment/unlike"
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 400
+
+    def test_unlike_comment_wrong_id(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
+        self.app.get(url)
+        url = "/comment/unlike?comment_id=%s&post_id=%s" % (str(-1), str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 404        
     
+    def test_unlike_comment_twice(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
+        self.app.get(url)
+        url = "/comment/unlike?comment_id=%s&post_id=%s" % (str(comment_id), str(post_id))
+        self.app.get(url)
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 404      
 
     # test insert a new user in DB
     def test_DB(self):
