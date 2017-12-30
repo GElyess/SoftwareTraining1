@@ -85,7 +85,7 @@ def post_add():
 			return errorDB, 500
 		return render_template("single_post.html", post = result), 200
 		#return redirect(url_for('blog'), code=status_code)
-	return str(result)
+	return str(result), 405
 
 @login_required
 def post_edit():
@@ -103,9 +103,9 @@ def post_edit():
 			return 'ERROR: edition', 404
 		return "post edited", 200
 		#return redirect(url_for('blog')), status_code
-	return result
-#I change this function
-#--johnny--
+	return result, 405
+
+
 @login_required
 def post_delete():
 	result = "ERROR: get"
@@ -119,10 +119,7 @@ def post_delete():
 			return errorDB, 500
 		if result != 1:
 			return 'post not found', 404
-			status_code = ERROR
-			#return 'ERROR: deletion'
 		return "post deleted", 200
-		#return redirect(url_for('blog')), status_code
 	return str(result), 405
 
 def post_array():
@@ -139,7 +136,6 @@ def post_array():
 	sql = "SELECT public.posts.*, public.user.name FROM public.posts LEFT JOIN public.user ON public.user.id = public.posts.user_id "
 	#sql += "WHERE public.posts.user_id IN "+ id_string +" ORDER BY public.posts.post_time DESC"
 	sql += "WHERE public.posts.user_id IN "+ sql_follow +" ORDER BY public.posts.post_time DESC"
-	print("SQL: ", sql)
 	result = database.DB.select(sql, args, "all")
 
 	return result
@@ -160,5 +156,5 @@ def post_user():
 		return redirect(url_for('dashboard')), ERROR
 	result = database.DB.select(sql, args, "all")
 	if result == -1:
-		return errorDB
+		return errorDB, 500
 	return render_template('user_posts.html', posts = result)

@@ -12,13 +12,11 @@ def session_followers():
 	if result == -1:
 		return -1
 	followed = []
-	#print(result)
 	if result:
 		for row in result:
 			followed.append(int(row[0]))
 
 	session['user_follow'] = followed
-	#print("USER FOLLOW:", followed)
 	return 0
 
 @login_required
@@ -86,9 +84,7 @@ def unfollow():
 			return errorDB, 500
 		session['post_likes'].append(int(args[1]))
 		session['follow'] -= 1
-		#return "user unfollowed", 200
 		return "user unfollowed", 200
-		#return redirect(url_for('back_to_search')), status_code
 	return str(result), 405
 
 @login_required
@@ -101,7 +97,6 @@ def unfollow_blog():
 		status_code = 404
 		return "user not found", 404
 	return "user unfollowed", 200
-	#return redirect(url_for('blog')), status_code
 
 @login_required
 def follows_unfollow():
@@ -116,14 +111,14 @@ def follows_unfollow():
 			return redirect(url_for('my_follows'))
 		result = database.DB.insert("DELETE FROM public.user_follow WHERE user_follow_id = %s AND user_followed_id = %s;", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		if result != 1:
 			status_code = 404
 		else:
 			session['post_likes'].append(int(args[1]))
 			session['follow'] -= 1
 		return redirect(url_for('my_follows')), status_code
-	return str(result)
+	return str(result), 405
 
 @login_required
 def my_follows():
@@ -131,7 +126,7 @@ def my_follows():
 	args = (str(session['id']))
 	result = database.DB.select("SELECT public.user.* FROM public.user_follow LEFT JOIN public.user ON (public.user_follow.user_followed_id = public.user.id) WHERE public.user_follow.user_follow_id = %s;", args, "all")
 	if result == -1:
-		return errorDB
+		return errorDB, 500
 	if result != 1:
 		status_code = 404
 	return render_template('my_follows.html', users = result), status_code
@@ -142,5 +137,5 @@ def my_followers():
 	args = (str(session['id']))
 	result = database.DB.select("SELECT public.user.* FROM public.user_follow LEFT JOIN public.user ON (public.user_follow.user_follow_id = public.user.id) WHERE public.user_follow.user_followed_id = %s;", args, "all")
 	if result == -1:
-		return errorDB
+		return errorDB, 500
 	return render_template('my_followers.html', users = result), status_code

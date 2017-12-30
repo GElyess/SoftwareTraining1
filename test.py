@@ -67,6 +67,13 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         assert status == 404
 
+     #TEST NO DATABASE CONNEXION
+    def test_login_nodb(self):
+        database.DB.close()
+        url = 'http://127.0.0.1:5000/login'
+        rv = self.login('johnny', 'asd12345')
+        status = rv.status_code
+        assert status == 500
 
     #test blog page
     def test_login_blog(self):
@@ -124,6 +131,14 @@ class FlaskrTestCase(unittest.TestCase):
         assert  status == 200
         database.DB.insert("DELETE FROM public.user WHERE name = 'johnnytest'")
 
+    def test_register_nodb(self):
+        database.DB.close()
+        rv = self.register('johnnytest','johnnytest@qq.com','asd12345')
+        url = 'http://127.0.0.1:5000/register'
+        status = rv.status_code
+        assert  status == 500
+        database.DB.insert("DELETE FROM public.user WHERE name = 'johnnytest'")
+
     def test_empty_email_register(self):
         #fields = (request.form.get('username', None), request.form.get('email', None), request.form.get('password', None))
         rv = self.register('johnnytest',None,'asd12345')
@@ -167,7 +182,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert  status == 400
         database.DB.insert("DELETE FROM public.user WHERE name = 'johnnytest'")
 
-
+    #TESTS POST
     def post(self,content):
         return self.app.post('/post/post', data=dict(
             content=content,
@@ -181,12 +196,17 @@ class FlaskrTestCase(unittest.TestCase):
         self.login('johnny','asd12345')
         rv = self.post('content test66666666666666666')
         assert rv.status_code == 200
+
+    def test_post_nodb(self):
+        self.login('johnny','asd12345')
+        database.DB.close()
+        rv = self.post('content test66666666666666666')
+        assert rv.status_code == 500
     
     def test_post_wrong_argument(self):
         self.login('johnny','asd12345')
         rv = self.post(None)
         status = rv.status_code
-        #print('777777777777::::',status)
         assert status == 400
 
     def test_post_empty_content(self):
@@ -210,6 +230,22 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, content))
         assert status == 200
+
+    def test_edit_post_nodb(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_to_edit'
+        rv = self.post(content)
+        post = database.DB.select("SELECT post_id FROM public.posts WHERE post_content=%s;", (content,))
+        post_id = post[0]
+        content = "jonny_test_post_edited"
+        database.DB.close()
+        rv = self.app.post("/post/update", data=dict(
+            post_id=post_id,
+            content=content
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, content))
+        assert status == 500
 
     def test_edit_post_wrong_argument(self):
         self.login('johnny', 'asd12345')
@@ -247,6 +283,19 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, content))
         assert status == 200
+
+    def test_delete_post_nodb(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_to_delete'
+        rv = self.post(content)
+        post = database.DB.select("SELECT post_id FROM public.posts WHERE post_content=%s;", (content,))
+        post_id = post[0]
+        database.DB.close()
+        url = "/post/delete?post_id=%s" % (str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, content))
+        assert status == 500
     
     def test_delete_post_wrong_argument(self):
         self.login('johnny', 'asd12345')
@@ -279,6 +328,18 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
         assert status == 200
+
+    def test_like_post_nodb(self):
+        self.login('johnny', 'asd12345')
+        response = self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'",)
+        post_id = post_id[0]
+        database.DB.close()
+        url = '/post/like?post_id=%s' % (str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
+        assert status == 500
 
     def test_like_post_fail_arguments(self):
         self.login('johnny', 'asd12345')
@@ -316,6 +377,34 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
         assert status == 200
+
+    def test_post_unlike_nodb(self):
+        self.login('johnny', 'asd12345')
+        response = self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'",)
+        post_id = post_id[0]
+        url = '/post/like?post_id=%s' % (str(post_id))
+        self.app.get(url)
+        url = '/post/unlike?post_id=%s' % (str(post_id))
+        database.DB.close()
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
+        assert status == 500
+
+    def test_post_unlike(self):
+        self.login('johnny', 'asd12345')
+        response = self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'",)
+        post_id = post_id[0]
+        url = '/post/like?post_id=%s' % (str(post_id))
+        self.app.get(url)
+        url = '/post/unlike?post_id=%s' % (str(post_id))
+        database.DB.close()
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s and post_content=%s;", (post_id, 'content test999'))
+        assert status == 500
 
     def test_post_unlike_wrong_arguments(self):
         self.login('johnny', 'asd12345')
@@ -369,6 +458,15 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         assert  status == 200
 
+    def test_comment_nodb(self):
+        self.login('johnny', 'asd12345')
+        self.post( 'content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999'")
+        database.DB.close()
+        rv = self.comment(post_id[0],'6666666')
+        status = rv.status_code
+        assert  status == 500
+
     def test_wrong_comment(self):
         self.login('johnny', 'asd12345')
         self.post( 'content test999')
@@ -409,6 +507,24 @@ class FlaskrTestCase(unittest.TestCase):
         status = rv.status_code
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
         assert  status == 200
+
+    def test_edit_comment_nodb(self):
+        self.login('johnny', 'asd12345')
+        content = 'johnny_test_post_for_comment_to_edit'
+        self.post(content)
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = %s;", (content,))
+        comment_content = '6666666'
+        self.comment(post_id[0], comment_content)
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE post_id=%s AND comment_content=%s;", (post_id, comment_content))
+        database.DB.close()
+        rv = self.app.post("/comment/update", data=dict(
+            content=content,
+            comment_id=comment_id[0],
+            post_id=post_id[0]
+            ))
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id[0],))
+        assert  status == 500
 
     def test_edit_comment_wrong_argument(self):
         self.login('johnny', 'asd12345')
@@ -475,6 +591,21 @@ class FlaskrTestCase(unittest.TestCase):
         database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id,))
         assert status == 200
 
+    def test_delete_comment_nodb(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        database.DB.close()
+        url = "/comment/delete?comment_id=%s&post_id=%s" % (comment_id, post_id)
+        rv = self.app.get(url)
+        status = rv.status_code
+        database.DB.update("DELETE FROM public.posts WHERE post_id=%s;", (post_id,))
+        assert status == 500
+
      #TEST DELETE COMMENT
     def test_delete_comment_wrong_argument(self):
         self.login('johnny', 'asd12345')
@@ -510,6 +641,20 @@ class FlaskrTestCase(unittest.TestCase):
         rv=self.app.get(url)
         status = rv.status_code
         assert status == 200
+
+    def test_like_comment_nodb(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
+        database.DB.close()
+        rv=self.app.get(url)
+        status = rv.status_code
+        assert status == 500
         
     def test_like_comment_wrong_argument(self):
         self.login('johnny', 'asd12345')
@@ -567,6 +712,22 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get(url)
         status = rv.status_code
         assert status == 200
+
+    def test_unlike_comment_nodb(self):
+        self.login('johnny', 'asd12345')
+        self.post('content test999')
+        post_id = database.DB.select("SELECT post_id FROM public.posts WHERE post_content = 'content test999';")
+        post_id = post_id[0]
+        self.comment(str(post_id), '6666666')
+        comment_id = database.DB.select("SELECT comment_id FROM public.comments WHERE comment_content = '6666666' AND post_id = %s;", (post_id,))
+        comment_id=comment_id[0]
+        url = '/comment/like?comment_id=%s&post_id=%s'%(str(comment_id),str(post_id))
+        self.app.get(url)
+        database.DB.close()
+        url = "/comment/unlike?comment_id=%s&post_id=%s" % (str(comment_id), str(post_id))
+        rv = self.app.get(url)
+        status = rv.status_code
+        assert status == 500
 
     def test_unlike_comment_wrong_arguments(self):
         self.login('johnny', 'asd12345')

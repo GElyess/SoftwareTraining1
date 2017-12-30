@@ -59,7 +59,7 @@ def comment_like():
 			return "comment not found", 404
 		return "comment " + args[1] + " liked", 200
 		#return redirect(url_for('blog_comment', post_id = post_id)), status_code
-	return str(result), 400
+	return str(result), 405
 
 """@login_required
 def delete_comment():
@@ -99,9 +99,7 @@ def post_comment():
 		result = database.DB.select("SELECT public.comments.*, public.user.name FROM public.comments LEFT JOIN public.user ON public.user.id = public.comments.user_id WHERE public.comments.post_id = %s ORDER BY public.comments.created_at DESC", args)
 		if result == -1:
 			return errorDB, 500
-
 		return render_template('single_comment.html', post_id=post_id, comment=result), 200
-		#return redirect(url_for('blog_comment', post_id = args[1])), status_code
 	return str(result), 405
 
 @login_required
@@ -120,13 +118,11 @@ def update_comment():
 		if result != 1:
 			return "comment not found.", 404
 		return ("comment " + args[2] + " updated"), 200
-		#return redirect(url_for('blog_comment', post_id = args[3])), status_code
 	return str(result), 400
 
 @login_required
 def delete_comment():
 	result = 'Error: get'
-	status_code = OK
 	if request.method == 'GET':
 		args = (session.get('id', None), request.args.get('comment_id', None), request.args.get('post_id', None))
 		if not valid_args(args):
@@ -135,11 +131,10 @@ def delete_comment():
 		if result == -1:
 			return errorDB, 500
 		if result != 1:
-			status_code = 404
-			return "comment not found", status_code
+			return "comment not found", 404
 		return "comment deleted", 200
 		#return redirect(url_for('blog_comment', post_id = args[2])), status_code
-	return str(result)
+	return str(result), 405
 
 def comment_array(post_id):
 	args = (post_id,)

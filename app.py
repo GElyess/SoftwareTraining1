@@ -60,7 +60,7 @@ app.add_url_rule('/follows/unfollow', 'follows_unfollow', follow.follows_unfollo
 @app.route('/')
 def home():
 	if database.DB.connected == False:
-		return errorDB
+		return errorDB, 500
 	return render_template('login.html')
 
 @app.route('/dashboard')
@@ -87,22 +87,20 @@ def blog():
 	sql += "WHERE public.posts.user_id = %s ORDER BY public.posts.post_time DESC;"""
 	myposts =  database.DB.select(sql, args, "all")
 	if myposts == -1 or result == -1:
-		return errorDB
+		return errorDB, 500
 	return render_template('twitter.html', posts = myposts, followed = result), status_code
 
 @app.route('/blog_comment', methods=['GET'])
 @login_required
 def blog_comment():
 	comment.session_comment_likes()
-	"""for i in session['comment_likes']:
-		print(type(i), " ", i)"""
 	result = post.post_array()
 	post_id = request.args.get('post_id', None)
 	if post_id == None:
 		return redirect(url_for('blog'))
 	check = database.DB.select("SELECT post_id from public.posts WHERE post_id = %s;", (post_id,))
 	if check == -1:
-		return errorDB
+		return errorDB, 500
 	if not check:
 		return redirect(url_for('blog'))
 	post_id = int(post_id)
@@ -110,12 +108,12 @@ def blog_comment():
 		return redirect(url_for('blog'))
 	result = comment.comment_array(str(post_id))
 	if result == -1:
-		return errorDB
+		return errorDB, 500
 	return render_template('comment.html', comments = result, post_id = post_id)
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html')
+    return render_template('welcome.html'), 200
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -149,17 +147,13 @@ def login():
 		args = (request.form.get('username', None), request.form.get('password', None))
 		if not valid_args(args):
 			return ("invalid args"), 400
-			#return redirect(url_for('home'))
 		args = (request.form['username'], MD5(request.form['password']))
-		#print(args)
 		result = database.DB.select("SELECT * FROM public.user where name = %s and password = %s;", args)
 		if result == -1:
-			return errorDB
-		#print("RESULT=", result)
+			return errorDB, 500
 		if not result:
 			error = 'Invalid Credentials. Please try again.'
 			return error, 404
-			#return render_template('login.html', error=error), 404
 		else:
 			session['logged_in'] = True
 			session['id'] = result[0]
@@ -176,12 +170,11 @@ def login():
 			comment.session_comment_likes()
 			post.session_post_likes()
 			if follow.session_followers() == -1:
-				return errorDB
+				return errorDB, 500
 			NAME = request.form['username']
 			flash('You are logged in as ' + request.form['username'])
 			name = request.form['username']
 			return "logged in", 200
-			#return redirect(url_for('dashboard'))
 	return render_template('login.html', error=error), 200
 
 @app.route('/logout',  methods=['GET'])
@@ -208,7 +201,7 @@ def update_profile():
 		args = (request.form['name'], request.form['email'], MD5(request.form['password']), request.form['gender'], request.form['region'], session['id'])
 		result = database.DB.update("UPDATE public.user SET name = %s, email = %s, password = %s, gender = %s, user_region = %s WHERE id = %s", args)
 		if result == -1:
-			return errorDB
+			return errorDB, 500
 		session['name'] = request.form['name']
 		session['email'] = request.form['email']
 		session['password'] = request.form['password']
