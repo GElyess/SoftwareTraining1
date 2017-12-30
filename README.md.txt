@@ -12,6 +12,7 @@ database name must be 'project_training'
 
 Run pgadmin4, create a database and name it 'project_training'.
 Restore the database 'project_training' by using the bachup file 'project_training.backup' loacted at project root.
+a backup.sql file is also available if you want to work on terminal only.
 
 PYTHON ENVIRONMENT AND RUN THE SERVER:
 setup a virtual environment using venv (linux) or virtualenv (windows)
